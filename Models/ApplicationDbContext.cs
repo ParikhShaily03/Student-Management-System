@@ -9,7 +9,7 @@ namespace Student_Management_System.Models
         
         
         }   
-        DbSet<Student> Students { get; set; }   
+        public DbSet<Student> Students { get; set; }   
 
     }
 }
