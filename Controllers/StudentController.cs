@@ -14,6 +14,7 @@ namespace Student_Management_System.Controllers
     
        
         [HttpGet]
+
         [Route("GetStudents")]
 
 
@@ -48,7 +49,7 @@ namespace Student_Management_System.Controllers
                 applicationDbContext.SaveChanges();
              
            
-            return "Student Added";
+            return "Student Added New";
 
         }
         
