@@ -17,8 +17,6 @@ namespace Student_Management_System.Controllers
 
         [Route("GetStudents")]
 
-
-      
         public List<Student> GetStudents()
         {
             return applicationDbContext.Students.ToList();
