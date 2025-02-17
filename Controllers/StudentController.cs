@@ -15,7 +15,6 @@ namespace Student_Management_System.Controllers
         private readonly ApplicationDbContext applicationDbContext;
         public StudentController(ApplicationDbContext applicationDbContext) => this.applicationDbContext = applicationDbContext;
 
-
         [HttpGet]
 
         [Route("GetStudents")]

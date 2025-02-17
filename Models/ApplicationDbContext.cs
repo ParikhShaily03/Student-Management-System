@@ -11,6 +11,7 @@ namespace Student_Management_System.Models
 
         }
         public DbSet<Student> Students { get; set; }
+        public DbSet<User> User { get; set; }
 
     }
     //public class AboutModel : PageModel
