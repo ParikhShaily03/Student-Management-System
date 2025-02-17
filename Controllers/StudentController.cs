@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Student_Management_System.Models;
+using Serilog;
+using Microsoft.EntityFrameworkCore;
 
 namespace Student_Management_System.Controllers
 {
@@ -8,11 +10,12 @@ namespace Student_Management_System.Controllers
     [ApiController]
     public class StudentController : ControllerBase
     {
+      
 
         private readonly ApplicationDbContext applicationDbContext;
         public StudentController(ApplicationDbContext applicationDbContext) => this.applicationDbContext = applicationDbContext;
-    
-       
+
+
         [HttpGet]
 
         [Route("GetStudents")]
@@ -58,7 +61,7 @@ namespace Student_Management_System.Controllers
         {
 
             applicationDbContext.Entry(student).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-            applicationDbContext.SaveChanges();
+           // applicationDbContext.SaveChanges();
             return "User Updated";
 
         }
