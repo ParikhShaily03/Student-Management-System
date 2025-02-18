@@ -1,7 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity.Data;
 using Auth0.AuthenticationApi;
-using Microsoft.AspNetCore.Identity.Data;
 
 
 namespace Student_Management_System.Services
