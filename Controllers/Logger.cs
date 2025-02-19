@@ -7,9 +7,9 @@ namespace Student_Management_System.Controllers
     [Route("api/[controller]")]
     public class Logger : ControllerBase
     {
-        private readonly ILogger<StudentController> _logger;
+        private readonly ILogger<Logger> _logger;
 
-        public Logger(ILogger<StudentController> logger)
+        public Logger(ILogger<Logger> logger)
         {
             _logger = logger;
         }

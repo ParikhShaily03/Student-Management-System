@@ -4,17 +4,17 @@ namespace Student_Management_System.Models
 {
     public class Login
     {
-        [Required]
+      
         [EmailAddress]
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
-        [Required]
-        public string Name { get; set; }
-        [Required]
+       
+        public required string Name { get; set; }
+       
         [DataType(DataType.Password)]
-        public string Password { get; set; }
-        public bool RememberMe { get; set; }
-        [Required]
-        public string Role { get; set; }
+        public required string Password { get; set; }
+        public required bool RememberMe { get; set; } = false;
+        
+        public required string Role { get; set; }
     }
 }

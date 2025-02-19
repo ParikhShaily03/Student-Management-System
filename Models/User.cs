@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace Student_Management_System.Models
 {
     public class User :IdentityUser
     {
-        public string Name { get; set; }
-        public string Email { get; set; }
-
-        public string Role { get; set; }
+       
+        public required string Name { get; set; }
+        public required string Role { get; set; }
     }
 }

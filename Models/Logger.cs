@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿//using Microsoft.AspNetCore.Http.HttpResults;
+//using System.Security.Principal;
+using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Principal;
 
 namespace Student_Management_System.Models
 {
@@ -9,15 +11,15 @@ namespace Student_Management_System.Models
 
         [Key]
         public int Id { get; set; }
-        [Required]
-        public string Fname { get; set; }
-        public string Lname { get; set; }
-        public string Massage { get; set; }
-      
-        public string Level { get; set; }
+        
+        public required string  fName { get; set; }
+        public required string lName { get; set; }
+        public required string Message { get; set; }
 
-        public DateTime timeStamp { get; set; }
-       public Exception ex { get; set; }
+        public required string Level { get; set; }
+
+        public required DateTime TimeStamp { get; set; }
+       public required Exception Ex { get; set; }
 
 
 
