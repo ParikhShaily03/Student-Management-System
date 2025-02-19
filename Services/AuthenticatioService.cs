@@ -46,7 +46,7 @@ namespace Student_Management_System.Services
                 throw new ArgumentException($"Unable to register user {request.Name} errors:{GetErrorsText(result.Errors)}");
             }
 
-            return await Login(new Login{ Email = request.Email, Password = request.Password });
+           return await Login(new Login{ Email = request.Email, Password = request.Password });
         }
 
         public Task<string> Login(LoginRequest request)
