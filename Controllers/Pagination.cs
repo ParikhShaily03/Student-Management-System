@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Student_Management_System.Models;
+using Student_Management_System.Migrations.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;

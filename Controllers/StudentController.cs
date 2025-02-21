@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Student_Management_System.Models;
 using Serilog;
 using Microsoft.EntityFrameworkCore;
+using Student_Management_System.Migrations.Models;
 
 namespace Student_Management_System.Controllers
 {

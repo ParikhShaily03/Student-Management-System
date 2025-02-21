@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Student_Management_System.Models
+namespace Student_Management_System.Migrations.Models
 {
     public class Pagination<T>
     {
@@ -21,5 +21,5 @@ namespace Student_Management_System.Models
 
     }
 
-  
+
 }

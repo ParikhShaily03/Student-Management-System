@@ -1,17 +1,23 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging.Configuration;
-using Microsoft.Extensions.Logging.Console;
-using Student_Management_System.Models;
 using Serilog;
-using Serilog.Sinks.MSSqlServer;
-using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Text;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.Extensions.Configuration;
+using Student_Management_System.Models;
+using Student_Management_System.Services;
+using Student_Management_System.Migrations.Models;
+using Microsoft.Extensions.Logging.Configuration;
+using Microsoft.Extensions.Logging.Console;
+
+//using Serilog.Sinks.MSSqlServer;
+//using Microsoft.EntityFrameworkCore.SqlServer;
+//using System.IdentityModel.Tokens.Jwt;
+//using Microsoft.Extensions.Configuration;
+
+
+
 
 
 
@@ -24,6 +30,8 @@ internal class Program
     {
 
         var builder = WebApplication.CreateBuilder(args);
+        // builder.Services.AddScoped<Microsoft.AspNetCore.Authentication.IAuthenticationService, Microsoft.AspNetCore.Authentication.AuthenticationService>();
+        builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
         var configuration = builder.Configuration;
 
@@ -38,7 +46,7 @@ internal class Program
             sqlOptions => sqlOptions.CommandTimeout(1000)));
 
         //2. Identity
-        builder.Services.AddIdentity<User,IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+        builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
         builder.Services.AddControllers();
 
         //3. Authentication
@@ -73,7 +81,7 @@ internal class Program
 
         builder.Services.AddSwaggerGen(c =>
         {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Wedding Planner API", Version = "v1" });
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Student Management System", Version = "v1" });
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
