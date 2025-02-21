@@ -5,14 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Student_Management_System.Migrations
 {
-    public partial class InitialIdentitySetup : Migration
+    public partial class identity : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "isdeleted",
-                table: "Students");
-
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -32,7 +28,6 @@ namespace Student_Management_System.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -221,13 +216,6 @@ namespace Student_Management_System.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
-
-            migrationBuilder.AddColumn<bool>(
-                name: "isdeleted",
-                table: "Students",
-                type: "bit",
-                nullable: false,
-                defaultValue: false);
         }
     }
 }

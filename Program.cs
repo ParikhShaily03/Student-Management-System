@@ -1,157 +1,178 @@
+﻿//using Microsoft.EntityFrameworkCore;
+//using Microsoft.OpenApi.Models;
+//using StudentManagement.Data;
+
+//var builder = WebApplication.CreateBuilder(args);
+
+//// Add services
+//builder.Services.AddControllers();
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+//// Enable CORS
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowAll", builder =>
+//        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+//});
+
+//// Add Swagger
+//builder.Services.AddEndpointsApiExplorer();
+//builder.Services.AddSwaggerGen(c =>
+//{
+//    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Student API", Version = "v1" });
+//});
+
+//var app = builder.Build();
+
+//// Configure middleware
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+
+//app.UseCors("AllowAll");
+//app.UseAuthorization();
+//app.MapControllers();
+//app.Run();
+
 using Microsoft.EntityFrameworkCore;
-using Serilog;
+using Microsoft.OpenApi.Models;
+using StudentManagement.Model;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using StudentManagement.Models;
 using Student_Management_System.Models;
-using Student_Management_System.Services;
-using Student_Management_System.Migrations.Models;
-using Microsoft.Extensions.Logging.Configuration;
-using Microsoft.Extensions.Logging.Console;
-
-//using Serilog.Sinks.MSSqlServer;
-//using Microsoft.EntityFrameworkCore.SqlServer;
-//using System.IdentityModel.Tokens.Jwt;
-//using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.DataProtection;
+using Serilog.Events;
+using Serilog;
+//using StudentManagement.Data;
 
 
+var builder = WebApplication.CreateBuilder(args);
+
+// ✅ Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration) // Read settings from appsettings.json
+    .WriteTo.Console() // Log to console
+    .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day) // Log to file
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning) // Reduce log verbosity for Microsoft logs
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 
+// Register ApplicationDbContext (placed in Models folder)
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
+//Added Identity
+builder.Services.AddIdentity<User, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
-internal class Program
+//JWT AUthentication
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+//var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]);
+
+//var key = Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Secret"]); // 🔥 Ensure key is 32+ chars
+
+var secretKey = jwtSettings["Secret"];
+if (string.IsNullOrEmpty(secretKey) || secretKey.Length < 32)
 {
-    public static object Configuration { get; private set; }
-
-    private static void Main(string[] args)
-    {
-
-        var builder = WebApplication.CreateBuilder(args);
-        // builder.Services.AddScoped<Microsoft.AspNetCore.Authentication.IAuthenticationService, Microsoft.AspNetCore.Authentication.AuthenticationService>();
-        builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-
-        var configuration = builder.Configuration;
-
-        Log.Logger = new LoggerConfiguration()
-              .ReadFrom.Configuration(builder.Configuration)
-              .CreateLogger();
-
-        builder.Host.UseSerilog(); // Set Serilog as the logging provider
-
-        //1. Add services to the container | Dbcontext
-        builder.Services.AddDbContext<ApplicationDbContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("APPlicationDBCon"),
-            sqlOptions => sqlOptions.CommandTimeout(1000)));
-
-        //2. Identity
-        builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
-        builder.Services.AddControllers();
-
-        //3. Authentication
-        builder.Services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-
-        //4. Add JWT bearer
-        .AddJwtBearer(options =>
-        {
-            options.SaveToken = true;
-            options.RequireHttpsMetadata = false;
-            options.TokenValidationParameters = new TokenValidationParameters()
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidAudience = configuration["JWT:ValidAudience"],
-                ValidIssuer = configuration["JWT:ValidIssuer"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
-
-            };
-
-        });
-
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-        builder.Services.AddEndpointsApiExplorer();
-
-        // 5. Swagger Authentication
-
-        builder.Services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Student Management System", Version = "v1" });
-            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            {
-                Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
-                      Enter 'Bearer' [space] and then your token in the text input below.
-                      \r\n\r\nExample: 'Bearer 12345abcdef'",
-                Name = "Authorization",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.ApiKey,
-                Scheme = "Bearer"
-            });
-
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement()
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                },
-                Scheme = "oauth2",
-                Name = "Bearer",
-                In = ParameterLocation.Header,
-
-            },
-            new List<string>()
-        }
-    });
-        });
-
-        builder.Services.AddControllers();
-            builder.Services.AddLogging();
-
-
-
-        builder.Services.AddCors(p => p.AddPolicy("Corspolicy", build =>
-        {
-            build.WithOrigins("https://0.0.0.0:7159").AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
-           // build.WithOrigins("https://172.16.2.144/:5025").AllowAnyMethod().AllowAnyHeader();
-        }));
-
-        //builder.Services.AddCors(p => p.AddPolicy("Corspolicy", build =>
-        //{
-        //    build.AllowAnyOrigin()
-        //         .AllowAnyMethod()
-        //         .AllowAnyHeader();
-        //}));
-
-
-        var app = builder.Build();
-
-        app.UseCors("Corspolicy");
-
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
-
-        
-
-        app.UseHttpsRedirection();
-
-        app.UseAuthorization();
-
-        app.MapControllers();
-        app.Lifetime.ApplicationStopped.Register(Log.CloseAndFlush);
-
-
-        app.Run();
-    }
+    throw new Exception("JWT Secret Key is too short. Must be at least 32 characters.");
 }
+
+var key = Encoding.UTF8.GetBytes(secretKey);
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false;
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            //ValidIssuer = jwtSettings["Issuer"],
+            //ValidAudience = jwtSettings["Audience"],
+            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+            ValidAudience = builder.Configuration["JwtSettings:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(key)
+        };
+    });
+Console.WriteLine($"Key Length: {key.Length * 8} bits");
+
+// Enable CORS for frontend integration.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+});
+// Add services to the container.
+builder.Services.AddControllers();
+
+// Add Swagger for API documentation.
+builder.Services.AddEndpointsApiExplorer();
+
+
+//builder.Services.AddSwaggerGen(c =>
+//{
+//    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Student API", Version = "v1" });
+//});
+
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "JWT Authorization header",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer"
+    });
+});
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+// Enable CORS.
+app.UseCors("AllowAll");
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+//app.Run();
+try
+{
+    Log.Information("Starting the application...");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly.");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
+
+
+
+

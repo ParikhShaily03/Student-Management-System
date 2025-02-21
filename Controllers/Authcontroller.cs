@@ -1,82 +1,78 @@
-﻿﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.Data;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using Student_Management_System.Models;
+using StudentManagement.Models;
 
-using System;
-using System.Threading.Tasks;
-//using Student_Management_System.Data;
-using Student_Management_System.Services;
-//using Student_Management_System.Models;
-
-
-using System.Threading.Tasks;
-using Student_Management_System.Data.DTO;
-//using Microsoft.AspNetCore.Identity.Data;
-
-namespace Student_Management_System.Controllers
+namespace StudentManagement.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthenticationService _authenticationService;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
+        private readonly IConfiguration _configuration;
 
-        public AuthController(IAuthenticationService authenticationService)
+        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IConfiguration configuration)
         {
-            _authenticationService = authenticationService;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _configuration = configuration;
         }
 
-        [AllowAnonymous]
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] Student_Management_System.Data.LoginRequest request)
-
-        {
-            if (request == null || !ModelState.IsValid)
-            {
-                return BadRequest("Invalid request data.");
-            }
-
-            var response = await _authenticationService.Login(request);
-
-            if (response == "Invalid login attempt")
-            {
-                return Unauthorized("Invalid email or password.");
-            }
-
-            return Ok(response);
-        }
-
-
-        //var identityRequest = new Microsoft.AspNetCore.Identity.Data.LoginRequest
-
-        //{
-        //    Email = request.Email;
-        //    Password = request.Password;
-        //};
-        //var response = await _authenticationService.Login(identityRequest);
-
-
-        [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] Data.DTO.RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
-            if (request == null || !ModelState.IsValid)
-            {
-                return BadRequest("Invalid request data.");
-            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var response = await _authenticationService.Register(request);
-            //if (response.StartsWith("Registration failed"))
-            //{
-            //    return BadRequest(response);
-            //}
-            var strResponse = response as string;
-            if (strResponse != null && strResponse.StartsWith("Registration failed"))
-            {
-                return BadRequest(strResponse);
-            }
+            var usernew = new User { UserName = model.Username, Email = model.Email };
+            var result = await _userManager.CreateAsync(usernew, model.Password);
 
-            return Ok(response);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            await _userManager.AddToRoleAsync(usernew, model.Role);
+            return Ok("User registered successfully.");
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        {
+            var user = await _userManager.FindByNameAsync(model.Username);
+            if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
+                return Unauthorized("Invalid credentials.");
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var token = GenerateJwtToken(user, roles.FirstOrDefault() ?? "User");
+
+           
+           return Ok(new AuthResponse { Token = token});
+        }
+
+        private string GenerateJwtToken(User user, string role)
+        {
+            var jwtSettings = _configuration.GetSection("JwtSettings");
+            var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]);
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+               new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
+                new Claim(ClaimTypes.Role, role)
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: jwtSettings["Issuer"],
+                audience: jwtSettings["Audience"],
+               claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(Convert.ToInt32(jwtSettings["ExpiryMinutes"])),
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256));
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

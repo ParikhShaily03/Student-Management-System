@@ -2,25 +2,39 @@
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using Microsoft.EntityFrameworkCore;
-using Student_Management_System.Migrations.Models;
+//using Student_Management_System.Models;
+//using StudentManagement.Data;
+using StudentManagement.Models;
+using StudentManagement.Model;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Student_Management_System.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles ="Admin")]
     public class StudentController : ControllerBase
     {
       
 
         private readonly ApplicationDbContext applicationDbContext;
-        public StudentController(ApplicationDbContext applicationDbContext) => this.applicationDbContext = applicationDbContext;
+        private readonly ILogger<StudentController> _logger;
+
+        // public StudentController(ApplicationDbContext applicationDbContext) => this.applicationDbContext = applicationDbContext;
+        public StudentController(ApplicationDbContext context, ILogger<StudentController> logger)
+        {
+            applicationDbContext = context;
+            _logger = logger;
+        }
 
         [HttpGet]
 
         [Route("GetStudents")]
 
+
         public List<Student> GetStudents()
         {
+            _logger.LogInformation("Fetching students...");
             return applicationDbContext.Students.ToList();
         }
      
@@ -33,8 +47,8 @@ namespace Student_Management_System.Controllers
         public Student GetStudent(int id)
           
         {
-            
-                return applicationDbContext.Students.Where(X => X.Id == id).FirstOrDefault();
+            _logger.LogWarning($"Student with ID {id} not found.");
+            return applicationDbContext.Students.Where(X => X.Id == id).FirstOrDefault();
             
          
         }
@@ -45,7 +59,6 @@ namespace Student_Management_System.Controllers
         {
             
                 string response = string.Empty;
-                applicationDbContext.Students.Add(student);
                 applicationDbContext.SaveChanges();
              
            
