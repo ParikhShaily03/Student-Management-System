@@ -12,7 +12,8 @@ namespace Student_Management_System.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles ="Admin")]
+    //[Authorize(Roles ="Admin")]
+   [Authorize]
     public class StudentController : ControllerBase
     {
       
