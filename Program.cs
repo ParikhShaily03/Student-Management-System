@@ -49,6 +49,7 @@ using Student_Management_System.Models;
 using Microsoft.AspNetCore.DataProtection;
 using Serilog.Events;
 using Serilog;
+using Microsoft.Extensions.DependencyInjection;
 //using StudentManagement.Data;
 
 
@@ -141,6 +142,20 @@ builder.Services.AddSwaggerGen(c =>
         Type = SecuritySchemeType.Http,
         Scheme = "bearer"
     });
+    //c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    //{
+    //    {
+    //        new OpenApiSecurityScheme
+    //        {
+    //            Reference = new OpenApiReference
+    //            {
+    //                Type = ReferenceType.SecurityScheme,
+    //                Id = "Bearer"
+    //            }
+    //        },
+    //        new string[] {}
+    //    }
+    //});
 });
 var app = builder.Build();
 
