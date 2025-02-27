@@ -36,7 +36,7 @@ namespace StudentManagement.Controllers
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
-            await _userManager.AddToRoleAsync(usernew, model.Role);
+            //await _userManager.AddToRoleAsync(usernew, model.Role);
             return Ok("User registered successfully.");
         }
 
