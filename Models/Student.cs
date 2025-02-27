@@ -11,7 +11,7 @@ namespace StudentManagement.Models
         public string Name { get; set; }
 
  
-        public int Department { get; set; }
+        public string Department { get; set; }
 
         [Required]
         [EmailAddress]
