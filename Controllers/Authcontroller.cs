@@ -9,6 +9,7 @@ using StudentManagement.Models;
 
 namespace StudentManagement.Controllers
 {
+    [ApiController]
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -38,11 +39,11 @@ namespace StudentManagement.Controllers
 
             //await _userManager.AddToRoleAsync(usernew, model.Role);
             return Ok("User registered successfully.");
-        }
+            }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
-        {
+            {
             var user = await _userManager.FindByNameAsync(model.Username);
             if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
                 return Unauthorized("Invalid credentials.");
@@ -50,7 +51,7 @@ namespace StudentManagement.Controllers
             var roles = await _userManager.GetRolesAsync(user);
             var token = GenerateJwtToken(user, roles.FirstOrDefault() ?? "User");
 
-           
+
            return Ok(new AuthResponse { Token = token});
         }
 
@@ -76,3 +77,4 @@ namespace StudentManagement.Controllers
         }
     }
 }
+
