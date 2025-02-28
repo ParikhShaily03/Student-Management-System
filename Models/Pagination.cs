@@ -1,25 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Student_Management_System.Models
+namespace StudentManagement.Models
 {
-    public class Pagination<T>
+    public class PaginationParameters
     {
-        public List<T> Items { get; set; }
-        public int TotalRecords { get; set; }
-        public int PageNumber { get; set; }
-        public int PageSize { get; set; }
-        public int TotalPages => (int)Math.Ceiling(TotalRecords / (double)PageSize);
+        private int _pageSize = 5;
 
-        public Pagination(List<T> items, int totalRecords, int pageNumber, int pageSize)
+        public int PageNumber { get; set; } = 1;
+
+        // Limit the maximum page size to 10.
+        public int PageSize
         {
-            Items = items;
-            TotalRecords = totalRecords;
-            PageNumber = pageNumber;
-            PageSize = pageSize;
+            get => _pageSize;
+            set => _pageSize = (value > 10 ? 10 : value);
         }
-
     }
 
-  
+    public class PagedResult<T>
+    {
+        public IEnumerable<T> Items { get; set; }
+        public int TotalCount { get; set; }
+    }
 }
+

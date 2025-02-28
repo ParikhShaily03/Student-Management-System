@@ -1,20 +1,16 @@
-﻿//using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Student_Management_System.Data;
 using Student_Management_System.Models;
+using StudentManagement.Models;
 
-namespace Student_Management_System.Models
+namespace StudentManagement.Model
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<User>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-        {
-        }
-        public DbSet<Student> Students { get; set; }
-        public DbSet<User> User { get; set; }
-        public DbSet<Logger> Loggers { get; set; }
-        //public DbSet<Login> Login { get; set; }
-        //public DbSet<Register> Register { get; set; }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
+
+        public DbSet<Student> Students { get; set; }
+        public DbSet<ApiLogger> ApiLoggers { get; set; }
     }
 }
