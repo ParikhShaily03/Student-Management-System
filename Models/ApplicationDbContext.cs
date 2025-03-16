@@ -12,5 +12,7 @@ namespace StudentManagement.Model
 
         public DbSet<Student> Students { get; set; }
         public DbSet<ApiLogger> ApiLoggers { get; set; }
+        public DbSet<LoginModel> loginModels { get; set; }
+        public DbSet<RegisterModel> RegisterModels { get; set; }
     }
 }

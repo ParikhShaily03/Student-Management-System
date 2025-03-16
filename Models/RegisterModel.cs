@@ -5,6 +5,8 @@ namespace Student_Management_System.Models
     public class RegisterModel
     {
         [Required]
+
+        [Key]
         public string Username { get; set; }
 
         [Required]

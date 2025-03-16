@@ -11,7 +11,7 @@ namespace StudentManagement.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [ApiController]
+    
     public class AuthController : ControllerBase
     {
         private readonly UserManager<User> _userManager;
