@@ -4,9 +4,9 @@ using Serilog;
 using Microsoft.EntityFrameworkCore;
 //using Student_Management_System.Models;
 //using StudentManagement.Data;
-using StudentManagement.Models;
-using StudentManagement.Model;
 using Microsoft.AspNetCore.Authorization;
+using Student_Management_System.Data;
+using Student_Management_System.Model;
 
 namespace Student_Management_System.Controllers
 {
@@ -39,6 +39,7 @@ namespace Student_Management_System.Controllers
             return applicationDbContext.Students.ToList();
 
         }
+
 
         //[HttpGet]
         //[Route("GetStudent/{id}")]

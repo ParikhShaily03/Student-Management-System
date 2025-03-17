@@ -1,9 +1,9 @@
 ﻿using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations;
 
-namespace StudentManagement.Models
+namespace Student_Management_System.Middleware
 {
-    public  class ApiLogger
+    public class ApiLogger
     {
         private static readonly ConcurrentQueue<string> _logs = new();
         public int Id { get; set; }  // ✅ Primary Key

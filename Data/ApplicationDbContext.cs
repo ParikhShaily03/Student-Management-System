@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Student_Management_System.Middleware;
+using Student_Management_System.Model;
 using Student_Management_System.Models;
-using StudentManagement.Models;
 
-namespace StudentManagement.Model
+namespace Student_Management_System.Data
 {
     public class ApplicationDbContext : IdentityDbContext<User>
     {

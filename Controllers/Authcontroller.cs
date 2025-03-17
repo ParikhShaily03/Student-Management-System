@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Student_Management_System.Model;
 using Student_Management_System.Models;
 using StudentManagement.Models;
 

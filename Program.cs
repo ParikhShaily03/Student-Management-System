@@ -39,18 +39,18 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using StudentManagement.Model;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StudentManagement.Models;
-using Student_Management_System.Models;
 using Microsoft.AspNetCore.DataProtection;
 using Serilog.Events;
 using Serilog;
 using Microsoft.Extensions.DependencyInjection;
+using Student_Management_System.Data;
+using Student_Management_System.Model;
 //using StudentManagement.Data;
 
 
@@ -123,6 +123,7 @@ builder.Services.AddCors(options =>
 // Add services to the container.
 builder.Services.AddControllers();
 
+
 // Add Swagger for API documentation.
 builder.Services.AddEndpointsApiExplorer();
 
@@ -171,6 +172,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllers();
 
