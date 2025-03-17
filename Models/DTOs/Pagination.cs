@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace StudentManagement.Models
+namespace Student_Management_System.Models.DTOs
 {
     public class PaginationParameters
     {
@@ -13,7 +13,7 @@ namespace StudentManagement.Models
         public int PageSize
         {
             get => _pageSize;
-            set => _pageSize = (value > 10 ? 10 : value);
+            set => _pageSize = value > 10 ? 10 : value;
         }
     }
 

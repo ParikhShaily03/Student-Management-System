@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Student_Management_System.Middleware;
 using Student_Management_System.Model;
 using Student_Management_System.Models;
+using Student_Management_System.Models.DTOs;
 
 namespace Student_Management_System.Data
 {

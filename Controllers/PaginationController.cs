@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Student_Management_System.Data;
-using StudentManagement.Models;
+using Student_Management_System.Models.DTOs;
 
 namespace StudentManagement.Controllers
 {
@@ -8,13 +7,6 @@ namespace StudentManagement.Controllers
     [ApiController]
     public class PaginationController : ControllerBase
     {
-
-        private readonly ApplicationDbContext _context;
-
-        public PaginationController(ApplicationDbContext context)
-        {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-        }
         // Sample endpoint to demonstrate pagination.
         [HttpGet]
         public IActionResult GetPagedData([FromQuery] PaginationParameters paginationParameters)

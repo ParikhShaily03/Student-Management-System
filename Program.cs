@@ -50,7 +50,7 @@ using Serilog.Events;
 using Serilog;
 using Microsoft.Extensions.DependencyInjection;
 using Student_Management_System.Data;
-using Student_Management_System.Model;
+using Student_Management_System.Models;
 //using StudentManagement.Data;
 
 
