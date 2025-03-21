@@ -6,17 +6,19 @@ namespace Student_Management_System.Models.DTOs
     {
         [Required]
 
-        [Key]
-        public string Username { get; set; }
+        
+        public string UserName { get; set; }
 
-        [Required]
+        public string Name { get; set; }
+
+        
         [EmailAddress]
         public required string Email { get; set; }
 
         [Required]
         [MinLength(6)]
         public string Password { get; set; }
-
+        
         [Required]
         public string Role { get; set; }  // Admin, User
     }

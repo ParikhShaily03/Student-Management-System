@@ -5,8 +5,8 @@ namespace Student_Management_System.Models.DTOs
     {
         [Required]
 
-        [Key]
-        public string Username { get; set; }
+        
+        public string UserName { get; set; }
 
         [Required]
         public string Password { get; set; }

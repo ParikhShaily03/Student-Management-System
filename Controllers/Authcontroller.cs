@@ -3,10 +3,13 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.IdentityModel.Tokens;
+using Student_Management_System.Model;
 using Student_Management_System.Models;
 using Student_Management_System.Models.DTOs;
-using StudentManagement.Models;
+
+//using StudentManagement.Models;
 
 namespace StudentManagement.Controllers
 {
@@ -30,30 +33,41 @@ namespace StudentManagement.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return Ok(ApiMassage.BadRequest);
 
-            var usernew = new User { UserName = model.Username, Email = model.Email };
+            User usernew = new User
+            {
+                Email = model.Email,
+                UserName = model.UserName, // Ensuring UserName is set
+                Name = model.Name // Or model.Name if Name is provided in the DTO
+            };
             var result = await _userManager.CreateAsync(usernew, model.Password);
 
             if (!result.Succeeded)
-                return BadRequest(result.Errors);
+                return Ok(ApiMassage.RegistrationFailed);
 
-            //await _userManager.AddToRoleAsync(usernew, model.Role);
-            return Ok("User registered successfully.");
+           // await _userManager.AddToRoleAsync(usernew, model.Role);
+            return Ok(ApiMassage.RegistrationSuccess);
             }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
             {
-            var user = await _userManager.FindByNameAsync(model.Username);
+            var user = await _userManager.FindByNameAsync(model.UserName)
+         ?? await _userManager.FindByEmailAsync(model.UserName);
             if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
-                return Unauthorized("Invalid credentials.");
+                return Ok(ApiMassage.Unauthorized);
 
             var roles = await _userManager.GetRolesAsync(user);
             var token = GenerateJwtToken(user, roles.FirstOrDefault() ?? "User");
 
 
-           return Ok(new AuthResponse { Token = token});
+           //return Ok(new AuthResponse { Token = token}, ApiMassage.LoginSuccess);
+            return Ok(new
+            {
+                message = ApiMassage.LoginSuccess,
+                data = new AuthResponse { Token = token }
+            });
         }
 
         private string GenerateJwtToken(User user, string role)
@@ -71,7 +85,7 @@ namespace StudentManagement.Controllers
                 issuer: jwtSettings["Issuer"],
                 audience: jwtSettings["Audience"],
                claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(Convert.ToInt32(jwtSettings["ExpiryMinutes"])),
+                expires: DateTime.UtcNow.AddMinutes(Convert.ToInt32(jwtSettings[ApiMassage.ExpiryMinutes])),
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256));
 
             return new JwtSecurityTokenHandler().WriteToken(token);

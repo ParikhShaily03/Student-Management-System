@@ -1,75 +1,53 @@
-﻿//using Microsoft.EntityFrameworkCore;
-//using Microsoft.OpenApi.Models;
-//using StudentManagement.Data;
-
-//var builder = WebApplication.CreateBuilder(args);
-
-//// Add services
-//builder.Services.AddControllers();
-//builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-//// Enable CORS
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowAll", builder =>
-//        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-//});
-
-//// Add Swagger
-//builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen(c =>
-//{
-//    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Student API", Version = "v1" });
-//});
-
-//var app = builder.Build();
-
-//// Configure middleware
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
-
-//app.UseCors("AllowAll");
-//app.UseAuthorization();
-//app.MapControllers();
-//app.Run();
-
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using StudentManagement.Models;
 using Microsoft.AspNetCore.DataProtection;
 using Serilog.Events;
 using Serilog;
 using Microsoft.Extensions.DependencyInjection;
 using Student_Management_System.Data;
 using Student_Management_System.Models;
+using Student_Management_System.Model;
+using Student_Management_System.Repositories;
+using Student_Management_System.Repositories.Irepositories;
+using Student_Management_System.Middleware;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Serilog.Sinks.MSSqlServer;
+using System.Collections.ObjectModel;
+using System.Data;
 //using StudentManagement.Data;
 
 
+
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = "Server=TRD-LAP-109;Database=ApplicationDbContext;TrustServerCertificate=True;Integrated Security=True;Encrypt=False;";
+   
 
 // ✅ Configure Serilog
 Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration) // Read settings from appsettings.json
+    /* .ReadFrom.Configuration(builder.Configuration)*/ // Read settings from appsettings.json
     .WriteTo.Console() // Log to console
     .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day) // Log to file
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning) // Reduce log verbosity for Microsoft logs
-    .CreateLogger();
+    .WriteTo.MSSqlServer
+    (
+    connectionString: connectionString,
+    sinkOptions: new MSSqlServerSinkOptions
+    {
+        TableName = "Logs",
+        AutoCreateSqlTable = true,
+    },
+    columnOptions: GetSqlColumnOptions()
+    ).CreateLogger();
 
 builder.Host.UseSerilog();
 
 
 // Register ApplicationDbContext (placed in Models folder)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("connectionString")));
 
 
 //Added Identity
@@ -114,6 +92,7 @@ builder.Services.AddAuthentication(options =>
     });
 Console.WriteLine($"Key Length: {key.Length * 8} bits");
 
+
 // Enable CORS for frontend integration.
 builder.Services.AddCors(options =>
 {
@@ -132,7 +111,7 @@ builder.Services.AddEndpointsApiExplorer();
 //{
 //    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Student API", Version = "v1" });
 //});
-
+builder.Services.AddScoped<IUser, UserRepo>();
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -159,16 +138,27 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Enable CORS.
+
+app.UseMiddleware<LoggingMiddleware>();
+//app.UseEndpoints(enpoints =>
+//{
+//    enpoints.MapGet("/", async context =>
+//    {
+//        await context.Response.WriteAsync("Hello,serilog Middleware!");
+//    });
+
+//});
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
@@ -189,6 +179,22 @@ catch (Exception ex)
 finally
 {
     Log.CloseAndFlush();
+}
+
+ColumnOptions GetSqlColumnOptions()
+{
+    var columnOptions = new ColumnOptions();
+    columnOptions.Store.Remove(StandardColumn.Properties);
+    columnOptions.Store.Remove(StandardColumn.MessageTemplate);
+    columnOptions.Store.Add(StandardColumn.LogEvent);
+
+    columnOptions.AdditionalColumns = new Collection<SqlColumn>
+    {
+        new SqlColumn { ColumnName = "UserId", DataType = SqlDbType.NVarChar, AllowNull = true, DataLength = 450 },
+        new SqlColumn { ColumnName = "RequestPath", DataType = SqlDbType.NVarChar, AllowNull = true, DataLength = 2048 },
+    };
+
+    return columnOptions;
 }
 
 
