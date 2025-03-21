@@ -112,6 +112,7 @@ builder.Services.AddEndpointsApiExplorer();
 //    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Student API", Version = "v1" });
 //});
 builder.Services.AddScoped<IUser, UserRepo>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -141,6 +142,7 @@ builder.Services.AddSwaggerGen(c =>
 
 
 var app = builder.Build();
+app.UseRoleMiddleware();
 
 
 if (app.Environment.IsDevelopment())
@@ -151,6 +153,7 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseMiddleware<LoggingMiddleware>();
+app.UseMiddleware<RoleMiddleware>();
 //app.UseEndpoints(enpoints =>
 //{
 //    enpoints.MapGet("/", async context =>
