@@ -12,8 +12,8 @@ using Student_Management_System.Data;
 namespace Student_Management_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250318051215_init")]
-    partial class init
+    [Migration("20250325055042_RollInit")]
+    partial class RollInit
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,7 +24,7 @@ namespace Student_Management_System.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.ApplicationRole", b =>
+            modelBuilder.Entity("ApplicationRole", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -32,6 +32,20 @@ namespace Student_Management_System.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
@@ -247,11 +261,43 @@ namespace Student_Management_System.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "3afe9977-1938-4fb3-820f-27f36203ebcb",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "0941a1a8-f053-489b-9d66-4a6adb757254",
+                            Department = "CE",
+                            Email = "admin@example.com",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            Name = "MyAdmin1",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "35c696b9-2746-4ab3-b7e3-80105f2fb06f",
+                            TwoFactorEnabled = false,
+                            UserName = "Admin"
+                        },
+                        new
+                        {
+                            Id = "6931be4c-a7c6-4ad3-b7a7-ab359bc648ae",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "9cdf14ed-a422-4861-84dd-94c75180e44b",
+                            Department = "CE",
+                            Email = "user@example.com",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            Name = "MyUser1",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "5ab5497c-7290-4322-bd81-eb998eb89882",
+                            TwoFactorEnabled = false,
+                            UserName = "User"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.ApplicationRole", null)
+                    b.HasOne("ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -278,7 +324,7 @@ namespace Student_Management_System.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.ApplicationRole", null)
+                    b.HasOne("ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)

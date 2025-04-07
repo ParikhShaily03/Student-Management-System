@@ -19,7 +19,7 @@ namespace Student_Management_System.Models.DTOs
         [MinLength(6)]
         public string Password { get; set; }
         
-        [Required]
-        public string Role { get; set; }  // Admin, User
+        //[Required]
+        //public string Role { get; set; }  // Admin, User
     }
 }

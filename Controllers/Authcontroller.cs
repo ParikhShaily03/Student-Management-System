@@ -4,7 +4,9 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR.Protocol;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Student_Management_System.Data;
 using Student_Management_System.Model;
 using Student_Management_System.Models;
 using Student_Management_System.Models.DTOs;
@@ -21,12 +23,14 @@ namespace StudentManagement.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly ApplicationDbContext _dbContext;
 
-        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IConfiguration configuration)
+        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IConfiguration configuration, ApplicationDbContext dbContext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            _dbContext = dbContext;
         }
 
         [HttpPost("register")]
@@ -70,6 +74,22 @@ namespace StudentManagement.Controllers
             });
         }
 
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (string.IsNullOrEmpty(token))
+                return BadRequest("Invalid token");
+
+            // Save the token to the revoked tokens table
+            await _dbContext.RevokedTokens.AddAsync(new RevokedToken { Token = token });
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new { message = "Logout successful" });
+        }
+
+
         private string GenerateJwtToken(User user, string role)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
@@ -90,6 +110,10 @@ namespace StudentManagement.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+       
+
+       
     }
 }
 

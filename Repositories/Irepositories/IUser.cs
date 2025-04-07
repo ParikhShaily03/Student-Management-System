@@ -1,13 +1,15 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Student_Management_System.Model;
+using Student_Management_System.Models;
 using Student_Management_System.Models.DTOs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Student_Management_System.Repositories.Irepositories
 {
-    public interface IUser
+    public interface IUser<T> where T : class
     {
+        Task<PagedResult<T>> GetPagedAsync(PaginationParameters paginationParameters);
         Task<IEnumerable<UserDTO>> GetAllAsync();
         Task<UserDTO> GetByIdAsync(string id);
         Task<User> GetByEmailAsync(string email);

@@ -5,7 +5,7 @@
         // Success Messages
         public static readonly string Success = "Operation completed successfully.";
         public static readonly string Updated = "Record updated successfully.";
-        public static readonly string Deleted = "Record deleted successfully.";
+        public static readonly string Deleted = "User soft deleted successfully.";
 
         // Error Messages
         public static readonly string NotFound = "Requested resource not found.";
@@ -21,6 +21,7 @@
         public static readonly string RegistrationSuccess = "User registered successfully.";
         public static readonly string RegistrationFailed = "User registration failed.";
         public static readonly string ExpiryMinutes = "Timeout";
+        public static readonly string LogoutSuccess = "User Log Out successfully";
 
 
     }

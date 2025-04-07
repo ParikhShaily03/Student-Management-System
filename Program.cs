@@ -50,8 +50,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("connectionString")));
 
 
+builder.Services.AddScoped(typeof(IUser<>), typeof(UserRepo<>));
+
+
 //Added Identity
-builder.Services.AddIdentity<User, IdentityRole>()
+builder.Services.AddIdentity<User, ApplicationRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
@@ -107,11 +110,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 
+
 //builder.Services.AddSwaggerGen(c =>
 //{
 //    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Student API", Version = "v1" });
 //});
-builder.Services.AddScoped<IUser, UserRepo>();
+
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
 builder.Services.AddSwaggerGen(c =>
@@ -142,8 +146,22 @@ builder.Services.AddSwaggerGen(c =>
 
 
 var app = builder.Build();
-app.UseRoleMiddleware();
 
+
+
+
+
+app.UseRouting();
+
+
+app.UseCors("AllowAll");
+app.UseMiddleware<TokenValidationMiddleware>();
+app.UseAuthentication();  // Ensure Authentication comes first
+app.UseAuthorization();   // Then Authorization
+
+app.UseMiddleware<RoleMiddleware>();
+app.UseRoleMiddleware();
+app.UseMiddleware<LoggingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
@@ -151,23 +169,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
-app.UseMiddleware<LoggingMiddleware>();
-app.UseMiddleware<RoleMiddleware>();
-//app.UseEndpoints(enpoints =>
-//{
-//    enpoints.MapGet("/", async context =>
-//    {
-//        await context.Response.WriteAsync("Hello,serilog Middleware!");
-//    });
-
-//});
-app.UseCors("AllowAll");
-app.UseAuthentication();
-app.UseAuthorization();
-
-
-app.MapControllers();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
+//app.MapControllers();
 
 //app.Run();
 try

@@ -12,8 +12,8 @@ using Student_Management_System.Data;
 namespace Student_Management_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250318051215_init")]
-    partial class init
+    [Migration("20250407051642_Update")]
+    partial class Update
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,7 +24,7 @@ namespace Student_Management_System.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.ApplicationRole", b =>
+            modelBuilder.Entity("ApplicationRole", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -32,6 +32,20 @@ namespace Student_Management_System.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
@@ -199,6 +213,9 @@ namespace Student_Management_System.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -247,11 +264,65 @@ namespace Student_Management_System.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "604e973f-779d-40ae-8ece-0e9a4f747f63",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "abfa1f28-5ead-49ff-87fa-fdd4a320498a",
+                            Department = "CE",
+                            Email = "admin@example.com",
+                            EmailConfirmed = false,
+                            IsDeleted = false,
+                            LockoutEnabled = false,
+                            Name = "MyAdmin1",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "66eab966-43cf-43f8-9ad9-4a734cd8e6de",
+                            TwoFactorEnabled = false,
+                            UserName = "Admin"
+                        },
+                        new
+                        {
+                            Id = "02198141-cd89-4863-b1c4-c23a032e81d9",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "e9e19738-0e70-4f75-ba42-dc6a6621e7c0",
+                            Department = "CE",
+                            Email = "user@example.com",
+                            EmailConfirmed = false,
+                            IsDeleted = false,
+                            LockoutEnabled = false,
+                            Name = "MyUser1",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "f022d6dc-105d-472f-8d14-10f2a31bfa08",
+                            TwoFactorEnabled = false,
+                            UserName = "User"
+                        });
+                });
+
+            modelBuilder.Entity("Student_Management_System.Models.RevokedToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("RevokedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RevokedTokens");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.ApplicationRole", null)
+                    b.HasOne("ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -278,7 +349,7 @@ namespace Student_Management_System.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.ApplicationRole", null)
+                    b.HasOne("ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)

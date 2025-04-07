@@ -1,19 +1,42 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Student_Management_System.Data;
 using Student_Management_System.Model;
+using Student_Management_System.Models;
 using Student_Management_System.Models.DTOs;
 using Student_Management_System.Repositories.Irepositories;
 
 
 namespace Student_Management_System.Repositories
 {
-    public class UserRepo : IUser
+    public class UserRepo<T> : IUser<T> where T:class
     {
         private readonly UserManager<User> _userManager;
+        private readonly ApplicationDbContext _context;
+        private readonly DbSet<T> _dbSet;
 
-        public UserRepo(UserManager<User> userManager)
+        public UserRepo(UserManager<User> userManager, ApplicationDbContext context)
         {
             _userManager = userManager;
+            _context = context;
+            _dbSet = context.Set<T>();
+        }
+
+        public async Task<PagedResult<T>> GetPagedAsync(PaginationParameters paginationParameters)
+        {
+            var totalCount = await _dbSet.CountAsync();
+
+            var items = await _dbSet
+                .Skip((paginationParameters.PageNumber - 1) * paginationParameters.PageSize)
+                .Take(paginationParameters.PageSize)
+                .ToListAsync();
+
+            return new PagedResult<T>
+            {
+                Items = items,
+                TotalCount = totalCount
+            };
         }
 
         public async Task<Add_EditDTO> AddAsync(Add_EditDTO userDto)
@@ -57,7 +80,14 @@ namespace Student_Management_System.Repositories
             if (user == null)
                 throw new Exception(ApiMassage.NotFound);
 
-            var result = await _userManager.DeleteAsync(user);
+            user.IsDeleted = true; // Soft delete
+
+            var result = await _userManager.UpdateAsync(user);
+
+
+
+
+        //    var result = await _userManager.DeleteAsync(user);
             return result.Succeeded;
         }
 
@@ -65,7 +95,7 @@ namespace Student_Management_System.Repositories
 
         public async Task<IEnumerable<UserDTO>> GetAllAsync()
         {
-            return await _userManager.Users
+            return await _userManager.Users.Where(u => !u.IsDeleted)
                 .Select(user => new UserDTO
                 {
                     Id = user.Id,
@@ -140,7 +170,7 @@ namespace Student_Management_System.Repositories
             };
         }
         public async Task<Add_EditDTO> UpsertUserAsyc(Add_EditDTO userDto , Guid ? ID)
-        {
+            {
             if (userDto == null)
                 throw new ArgumentNullException(nameof(userDto));
 
@@ -163,6 +193,7 @@ namespace Student_Management_System.Repositories
                 user.Department = userDto.Department;
 
                 var updateResult = await _userManager.UpdateAsync(user);
+                
                 if (!updateResult.Succeeded)
                     throw new Exception(ApiMassage.NotUpdated);
             }
@@ -191,7 +222,9 @@ namespace Student_Management_System.Repositories
                 Email = user.Email,
                 Department = user.Department,
             };
+            
         }
+
 
         
     }

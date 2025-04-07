@@ -9,7 +9,7 @@ namespace Student_Management_System.Model
         [Required]
 
         public string Name { get; set; }
-
+        public bool IsDeleted { get; set; } = false;
 
         public string? Department { get; set; }
 
