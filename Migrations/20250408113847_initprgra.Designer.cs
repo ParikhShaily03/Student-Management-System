@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Student_Management_System.Data;
 
@@ -11,9 +12,10 @@ using Student_Management_System.Data;
 namespace Student_Management_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250408113847_initprgra")]
+    partial class initprgra
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -266,9 +268,9 @@ namespace Student_Management_System.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "07d7f6f9-02d2-48b0-845c-694288f187ea",
+                            Id = "2ed211b5-9aa1-4007-94c7-14887f7ea60a",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "2c4ee0a4-addf-49e2-b21d-41e1f510ab32",
+                            ConcurrencyStamp = "312ee4bf-49b4-497e-8e5d-ab8630aae1b6",
                             Department = "CE",
                             Email = "admin@example.com",
                             EmailConfirmed = false,
@@ -276,15 +278,15 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyAdmin1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "a320c5fe-9c90-4410-b87e-391bd29c2edf",
+                            SecurityStamp = "545accb0-7e1a-4b39-9654-f097934698ec",
                             TwoFactorEnabled = false,
                             UserName = "Admin"
                         },
                         new
                         {
-                            Id = "2194b7f3-d1e4-4690-b362-7ec7ef3acd1b",
+                            Id = "d9876360-b589-43f6-9f5a-44ac468d2f36",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "d2494a92-6524-4c86-b199-6604656e5300",
+                            ConcurrencyStamp = "5adeccf2-786e-4186-b446-c291b44aa3fe",
                             Department = "CE",
                             Email = "user@example.com",
                             EmailConfirmed = false,
@@ -292,7 +294,7 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyUser1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "54795594-1a88-41e2-ad0f-1261b3200c28",
+                            SecurityStamp = "aae30ea9-4cd8-4d1f-b638-034f4d01d99c",
                             TwoFactorEnabled = false,
                             UserName = "User"
                         });

@@ -16,38 +16,41 @@ using Student_Management_System.Repositories.Irepositories;
 using Student_Management_System.Middleware;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Serilog.Sinks.MSSqlServer;
+using Serilog.Sinks.EventLog;
 using System.Collections.ObjectModel;
 using System.Data;
-//using StudentManagement.Data;
+//using StudentManagement.Data;y
 
 
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = "Server=TRD-LAP-109;Database=ApplicationDbContext;TrustServerCertificate=True;Integrated Security=True;Encrypt=False;";
-   
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // ✅ Configure Serilog
 Log.Logger = new LoggerConfiguration()
     /* .ReadFrom.Configuration(builder.Configuration)*/ // Read settings from appsettings.json
     .WriteTo.Console() // Log to console
+    .WriteTo.EventLog("Student_Management_System", manageEventSource: true, restrictedToMinimumLevel: LogEventLevel.Warning)
     .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day) // Log to file
     .WriteTo.MSSqlServer
     (
-    connectionString: connectionString,
+    connectionString: builder.Configuration.GetConnectionString("DefaultConnection"),
     sinkOptions: new MSSqlServerSinkOptions
     {
         TableName = "Logs",
         AutoCreateSqlTable = true,
     },
     columnOptions: GetSqlColumnOptions()
-    ).CreateLogger();
+    )
+    
+    .CreateLogger();
 
 builder.Host.UseSerilog();
 
 
 // Register ApplicationDbContext (placed in Models folder)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("connectionString")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
 builder.Services.AddScoped(typeof(IUser<>), typeof(UserRepo<>));
@@ -163,11 +166,14 @@ app.UseMiddleware<RoleMiddleware>();
 app.UseRoleMiddleware();
 app.UseMiddleware<LoggingMiddleware>();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseEndpoints(endpoints =>
 {
