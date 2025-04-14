@@ -24,28 +24,28 @@ using System.Data;
 
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// ✅ Configure Serilog
-Log.Logger = new LoggerConfiguration()
-    /* .ReadFrom.Configuration(builder.Configuration)*/ // Read settings from appsettings.json
-    .WriteTo.Console() // Log to console
-    .WriteTo.EventLog("Student_Management_System", manageEventSource: true, restrictedToMinimumLevel: LogEventLevel.Warning)
-    .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day) // Log to file
-    .WriteTo.MSSqlServer
-    (
-    connectionString: builder.Configuration.GetConnectionString("DefaultConnection"),
-    sinkOptions: new MSSqlServerSinkOptions
-    {
-        TableName = "Logs",
-        AutoCreateSqlTable = true,
-    },
-    columnOptions: GetSqlColumnOptions()
-    )
-    
-    .CreateLogger();
+//// ✅ Configure Serilog
+//Log.Logger = new LoggerConfiguration()
+//    /* .readfrom.configuration(builder.configuration)*/ // read settings from appsettings.json
+//    .WriteTo.Console() // log to console
+//    .WriteTo.EventLog("student_management_system", manageEventSource: true, restrictedToMinimumLevel: LogEventLevel.Warning)
+//    .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day) // log to file
+//    .WriteTo.MSSqlServer
+//    (
+//    connectionString: builder.Configuration.GetConnectionString("DefaultConnection"),
+//    sinkOptions: new MSSqlServerSinkOptions
+//    {
+//        TableName = "logs",
+//        AutoCreateSqlTable = true,
+//    },
+//    columnOptions: GetSqlColumnOptions()
+//    )
 
-builder.Host.UseSerilog();
+//    .CreateLogger();
+
+//builder.Host.UseSerilog();
 
 
 // Register ApplicationDbContext (placed in Models folder)
@@ -166,14 +166,14 @@ app.UseMiddleware<RoleMiddleware>();
 app.UseRoleMiddleware();
 app.UseMiddleware<LoggingMiddleware>();
 
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-app.UseSwagger();
-app.UseSwaggerUI();
+//app.UseSwagger();
+//app.UseSwaggerUI();
 
 app.UseEndpoints(endpoints =>
 {
