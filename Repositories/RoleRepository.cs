@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Student_Management_System.Model;
+using Student_Management_System.Models.DTOs;
 using Student_Management_System.Repositories.Irepositories;
 
 namespace Student_Management_System.Repositories
@@ -6,11 +8,13 @@ namespace Student_Management_System.Repositories
     public class RoleRepository : IRoleRepository
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly UserManager<User> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public RoleRepository(RoleManager<ApplicationRole> roleManager, IHttpContextAccessor httpContextAccessor)
+        public RoleRepository(RoleManager<ApplicationRole> roleManager, UserManager<User> userManager, IHttpContextAccessor httpContextAccessor)
         {
             _roleManager = roleManager;
+            _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
         }
 
@@ -59,6 +63,39 @@ namespace Student_Management_System.Repositories
             return updateResult.Succeeded;
         }
 
+        public async Task<bool> AssignRoleToUserAsync(string Id, string roleName) 
+        {
+            Id = Id.Trim().ToLower();
+            var user = await _userManager.FindByIdAsync(Id);
+            if (user == null || !await _roleManager.RoleExistsAsync(roleName))
+                return false;
+
+            var result = await _userManager.AddToRoleAsync(user, roleName);
+            return result.Succeeded;
+        }
+
+
+        public async Task<bool> RemoveRoleFromUserAsync(string Id, string roleName)
+        {
+
+            Id = Id.Trim().ToLower();
+            var user = await _userManager.FindByIdAsync(Id);
+            if (user == null || !await _roleManager.RoleExistsAsync(roleName))
+                return false;
+
+            var result = await _userManager.RemoveFromRoleAsync(user, roleName);
+            return result.Succeeded;
+        }
+
+        public async Task<IList<string>> GetUserRolesAsync(string Id)
+        {
+            Id = Id.Trim().ToLower();
+            var user = await _userManager.FindByIdAsync(Id);
+            if (user == null)
+                return new List<string>();
+
+            return await _userManager.GetRolesAsync(user);
+        }
 
 
 

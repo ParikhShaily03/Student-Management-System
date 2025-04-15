@@ -20,7 +20,6 @@ namespace Student_Management_System.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(Roles ="Admin")]
     //[Authorize]
     public class UsersController : ControllerBase
     {
@@ -39,9 +38,7 @@ namespace Student_Management_System.Controllers
         }
 
 
-
         [HttpGet]
-
         [Route("GetUsers")]
 
         //[HttpGet("GetUsers")]
@@ -49,9 +46,6 @@ namespace Student_Management_System.Controllers
         {
             try
             {
-
-
-
 
                 if (paginationParameters == null)
                 {
@@ -135,74 +129,7 @@ namespace Student_Management_System.Controllers
         }
 
 
-            //    try
-            //    {
-            //        var query = applicationDbContext.Users.
-            //
-            //
-            //        ();
-
-            //        if (!string.IsNullOrEmpty(search))
-            //        {
-            //            query = query.Where(u =>
-            //            u.Name.ToLower().Contains(search.ToLower()) ||
-            //            u.Email.ToLower().Contains(search.ToLower()) ||
-            //            u.Department.ToLower().Contains(search.ToLower()) ||
-            //            u.UserName.ToLower().Contains(search.ToLower())
-            //);
-            //        }
-
-            //        int totalCount = await query.CountAsync();
-            //        Console.WriteLine($"Total users after filtering: {totalCount}");
-
-            //        var Users = await _User.GetAllAsync();
-            //        if (paginationParameters == null)
-            //        {
-            //            return BadRequest(new { Message = "Pagination parameters are required." });
-            //        }
-
-            //        if (paginationParameters.PageNumber < 1) paginationParameters.PageNumber = 1;
-            //        if (paginationParameters.PageSize < 1) paginationParameters.PageSize = 10;
-
-
-
-
-            //        Console.WriteLine($"Total users after filtering: {query.Count()}");
-            //        // Count before pagination
-
-            //        var users = await query
-            //            .OrderBy(u => u.UserName)
-            //            .Skip((paginationParameters.PageNumber - 1) * paginationParameters.PageSize)
-            //            .Take(paginationParameters.PageSize)
-            //            .Select(u => new
-            //            {
-            //                u.Id,
-            //                u.Name,
-            //                u.Email,
-            //                u.Department,
-            //                u.UserName
-            //            })
-            //            .ToListAsync();
-
-
-
-
-            //        //var totalUsers = await applicationDbContext.Users.CountAsync();
-
-
-
-            //        //return Ok(Users);
-            //        return Ok(new { Message = ApiMassage.Success, data = users, TotalCount = query.Count() });
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        return StatusCode(500, new { Message = "Internal Server Error", Error = ex.Message });
-
-            //    }
-
-            //    }
-
-            [HttpGet]
+        [HttpGet]
         [Route("GetUser/{id}")]
         public async Task<IActionResult> GetUserById(string id)
         {

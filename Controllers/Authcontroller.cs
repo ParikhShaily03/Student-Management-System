@@ -10,6 +10,7 @@ using Student_Management_System.Data;
 using Student_Management_System.Model;
 using Student_Management_System.Models;
 using Student_Management_System.Models.DTOs;
+using Student_Management_System.Repositories.Irepositories;
 
 //using StudentManagement.Models;
 
@@ -24,13 +25,15 @@ namespace StudentManagement.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly IConfiguration _configuration;
         private readonly ApplicationDbContext _dbContext;
+        private readonly IRoleRepository _roleRepository;
 
-        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IConfiguration configuration, ApplicationDbContext dbContext)
+        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IConfiguration configuration, ApplicationDbContext dbContext, IRoleRepository roleRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
             _dbContext = dbContext;
+            _roleRepository = roleRepository;
         }
 
         [HttpPost("register")]
@@ -62,11 +65,14 @@ namespace StudentManagement.Controllers
             if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
                 return Ok(ApiMassage.Unauthorized);
 
-            var roles = await _userManager.GetRolesAsync(user);
-            var token = GenerateJwtToken(user, roles.FirstOrDefault() ?? "User");
+            // var roles = await _userManager.GetRolesAsync(user);
+            var roles = await _roleRepository.GetUserRolesAsync(user.Id);
+            //var token = GenerateJwtToken(user, roles.FirstOrDefault() ?? "User");
+            var token = GenerateJwtToken(user, roles);
 
 
-           //return Ok(new AuthResponse { Token = token}, ApiMassage.LoginSuccess);
+
+            //return Ok(new AuthResponse { Token = token}, ApiMassage.LoginSuccess);
             return Ok(new
             {
                 message = ApiMassage.LoginSuccess,
@@ -90,30 +96,60 @@ namespace StudentManagement.Controllers
         }
 
 
-        private string GenerateJwtToken(User user, string role)
+        //private string GenerateJwtToken(User user, string role)
+
+        //{
+
+        //    var jwtSettings = _configuration.GetSection("JwtSettings");
+        //    var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]);
+        //    var claims = new List<Claim>
+        //    {
+        //        new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+        //       new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
+        //        new Claim(ClaimTypes.Role, role)
+        //    };
+
+        //    var token = new JwtSecurityToken(
+        //        issuer: jwtSettings["Issuer"],
+        //        audience: jwtSettings["Audience"],
+        //       claims: claims,
+        //        expires: DateTime.UtcNow.AddMinutes(Convert.ToInt32(jwtSettings[ApiMassage.ExpiryMinutes])),
+        //        signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256));
+
+        //    return new JwtSecurityTokenHandler().WriteToken(token);
+        //}
+
+        private string GenerateJwtToken(User user, IList<string> roles)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]);
+
             var claims = new List<Claim>
+    {
+        new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+        new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
+        new Claim(JwtRegisteredClaimNames.Email, user.Email)
+    };
+
+            // Add all roles dynamically
+            foreach (var role in roles)
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-               new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
-                new Claim(ClaimTypes.Role, role)
-            };
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var token = new JwtSecurityToken(
                 issuer: jwtSettings["Issuer"],
                 audience: jwtSettings["Audience"],
-               claims: claims,
+                claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(Convert.ToInt32(jwtSettings[ApiMassage.ExpiryMinutes])),
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256));
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-       
 
-       
+
+
     }
 }
 

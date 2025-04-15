@@ -4,6 +4,9 @@ using Student_Management_System.Repositories.Irepositories;
 
 namespace Student_Management_System.Controllers
 {
+
+    [ApiController]
+    [Route("api/[controller]")]
     public class RoleController : ControllerBase
 
 
@@ -27,7 +30,8 @@ namespace Student_Management_System.Controllers
         public async Task<IActionResult> GetRoleById(string roleId)
         {
             var role = await _roleRepository.GetRoleByIdAsync(roleId);
-            return role == null ? Ok(ApiMassage.NotFound) : Ok(role);
+            return role == null ? NotFound("Role not found.") : Ok(role);
+
         }
 
         // ✅ Create Role
@@ -47,6 +51,35 @@ namespace Student_Management_System.Controllers
         {
             bool success = await _roleRepository.DeleteRoleAsync(roleId);
             return success ? Ok("Role deleted successfully.") : NotFound("Role not found.");
+        }
+
+        //[HttpPost("AssignRole")]
+        //public async Task<IActionResult> AssignRoleToUser([FromQuery] string userId , [FromQuery] string roleName)
+        //{
+        //    var success = await _roleRepository.AssignRoleToUserAsync(userId, roleName);
+        //    return success ? Ok("Role assigned successfully.") : BadRequest("Failed to assign role.");
+        //}
+
+        [HttpPost("AssignRole")]
+        public async Task<IActionResult> AssignRoleToUser([FromBody] RoleAssignDto model)
+        {
+            var success = await _roleRepository.AssignRoleToUserAsync(model.UserId, model.RoleName);
+            return success ? Ok("Role assigned successfully.") : BadRequest("Failed to assign role.");
+        }
+
+
+        [HttpPost("RemoveRole")]
+        public async Task<IActionResult> RemoveRoleFromUser([FromBody] RoleAssignDto model)
+        {
+            var success = await _roleRepository.RemoveRoleFromUserAsync(model.UserId, model.RoleName);
+            return success ? Ok("Role removed successfully.") : BadRequest("Failed to remove role.");
+        }
+
+        [HttpGet("UserRoles/{userId}")]
+        public async Task<IActionResult> GetUserRoles(string roleId)
+        {
+            var roles = await _roleRepository.GetUserRolesAsync(roleId);
+            return Ok(roles);
         }
 
 

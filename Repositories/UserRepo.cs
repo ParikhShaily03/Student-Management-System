@@ -23,6 +23,8 @@ namespace Student_Management_System.Repositories
             _dbSet = context.Set<T>();
         }
 
+     
+
         public async Task<PagedResult<T>> GetPagedAsync(PaginationParameters paginationParameters)
         {
             var totalCount = await _dbSet.CountAsync();

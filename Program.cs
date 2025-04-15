@@ -24,28 +24,28 @@ using System.Data;
 
 
 var builder = WebApplication.CreateBuilder(args);
-//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-//// ✅ Configure Serilog
-//Log.Logger = new LoggerConfiguration()
-//    /* .readfrom.configuration(builder.configuration)*/ // read settings from appsettings.json
-//    .WriteTo.Console() // log to console
-//    .WriteTo.EventLog("student_management_system", manageEventSource: true, restrictedToMinimumLevel: LogEventLevel.Warning)
-//    .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day) // log to file
-//    .WriteTo.MSSqlServer
-//    (
-//    connectionString: builder.Configuration.GetConnectionString("DefaultConnection"),
-//    sinkOptions: new MSSqlServerSinkOptions
-//    {
-//        TableName = "logs",
-//        AutoCreateSqlTable = true,
-//    },
-//    columnOptions: GetSqlColumnOptions()
-//    )
+// ✅ Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    /* .readfrom.configuration(builder.configuration)*/ // read settings from appsettings.json
+    .WriteTo.Console() // log to console
+    .WriteTo.EventLog("student_management_system", manageEventSource: true, restrictedToMinimumLevel: LogEventLevel.Warning)
+    .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day) // log to file
+    .WriteTo.MSSqlServer
+    (
+    connectionString: builder.Configuration.GetConnectionString("DefaultConnection"),
+    sinkOptions: new MSSqlServerSinkOptions
+    {
+        TableName = "logs",
+        AutoCreateSqlTable = true,
+    },
+    columnOptions: GetSqlColumnOptions()
+    )
 
-//    .CreateLogger();
+    .CreateLogger();
 
-//builder.Host.UseSerilog();
+builder.Host.UseSerilog();
 
 
 // Register ApplicationDbContext (placed in Models folder)
@@ -107,6 +107,8 @@ builder.Services.AddCors(options =>
 });
 // Add services to the container.
 builder.Services.AddControllers();
+//builder.Services.AddHttpContextAccessor();
+
 
 
 // Add Swagger for API documentation.
@@ -160,9 +162,10 @@ app.UseRouting();
 app.UseCors("AllowAll");
 app.UseMiddleware<TokenValidationMiddleware>();
 app.UseAuthentication();  // Ensure Authentication comes first
+app.UseRoleMiddleware();
 app.UseAuthorization();   // Then Authorization
 
-app.UseMiddleware<RoleMiddleware>();
+//app.UseMiddleware<RoleMiddleware>();
 app.UseRoleMiddleware();
 app.UseMiddleware<LoggingMiddleware>();
 
@@ -174,6 +177,8 @@ if (app.Environment.IsDevelopment())
 
 //app.UseSwagger();
 //app.UseSwaggerUI();
+
+
 
 app.UseEndpoints(endpoints =>
 {
