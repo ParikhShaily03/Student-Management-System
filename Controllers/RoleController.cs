@@ -76,9 +76,9 @@ namespace Student_Management_System.Controllers
         }
 
         [HttpGet("UserRoles/{userId}")]
-        public async Task<IActionResult> GetUserRoles(string roleId)
+        public async Task<IActionResult> GetUserRoles(string userId)
         {
-            var roles = await _roleRepository.GetUserRolesAsync(roleId);
+            var roles = await _roleRepository.GetUserRolesAsync(userId);
             return Ok(roles);
         }
 
