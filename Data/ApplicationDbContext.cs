@@ -5,6 +5,7 @@ using Student_Management_System.Model;
 using Student_Management_System.Models;
 using Student_Management_System.Models.DTOs;
 
+
 namespace Student_Management_System.Data
 {
     public class ApplicationDbContext : IdentityDbContext<User, ApplicationRole, string>
@@ -16,6 +17,8 @@ namespace Student_Management_System.Data
         public DbSet<ApiLogger> ApiLoggers { get; set; }
         public DbSet<RevokedToken> RevokedTokens { get; set; }
 
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -34,6 +37,20 @@ namespace Student_Management_System.Data
                 entity.Property(r => r.DeletedDate);
                 entity.Property(r => r.DeletedBy).HasMaxLength(100);
             });
+
+            // Configure relationships
+            modelBuilder.Entity<RolePermission>()
+                .HasKey(rp => rp.Id);
+
+            modelBuilder.Entity<RolePermission>()
+                .HasOne(rp => rp.Role)
+                .WithMany(r => r.RolePermissions)
+                .HasForeignKey(rp => rp.RoleId);
+
+            modelBuilder.Entity<RolePermission>()
+                .HasOne(rp => rp.Permission)
+                .WithMany()
+                .HasForeignKey(rp => rp.PermissionId);
         }
 
     }

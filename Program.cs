@@ -17,8 +17,11 @@ using Student_Management_System.Middleware;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Serilog.Sinks.MSSqlServer;
 using Serilog.Sinks.EventLog;
+using Student_Management_System.Service;
 using System.Collections.ObjectModel;
 using System.Data;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 //using StudentManagement.Data;y
 
 
@@ -114,6 +117,9 @@ builder.Services.AddControllers();
 // Add Swagger for API documentation.
 builder.Services.AddEndpointsApiExplorer();
 
+//builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+
 
 
 //builder.Services.AddSwaggerGen(c =>
@@ -122,6 +128,13 @@ builder.Services.AddEndpointsApiExplorer();
 //});
 
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+// Add to your services configuration
+builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
+
+// Add authorization services
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+//builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
 builder.Services.AddSwaggerGen(c =>
 {

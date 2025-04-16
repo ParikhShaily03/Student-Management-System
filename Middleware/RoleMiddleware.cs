@@ -23,7 +23,7 @@ namespace Student_Management_System.Middleware
             }
 
             await _next(context);
-        }
+         }
     }
 
     // Extension Method for Middleware Registration

@@ -7,8 +7,10 @@ namespace Student_Management_System.Repositories.Irepositories
 {
     public interface IRoleRepository
     {
-       
-        Task<IEnumerable<ApplicationRole>> GetAllRolesAsync();
+
+        //Task<IEnumerable<ApplicationRole>> GetAllRolesAsync();
+        Task<IEnumerable<ApplicationRole>> GetAllRolesAsync(); // ✔️ matches implementation
+
         Task<ApplicationRole> GetRoleByIdAsync(string roleId);
         Task<bool> CreateRoleAsync(string roleName);
         Task<bool> DeleteRoleAsync(string roleId);

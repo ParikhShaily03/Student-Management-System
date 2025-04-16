@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Student_Management_System.Models.DTOs;
 using Student_Management_System.Repositories.Irepositories;
 
@@ -60,6 +61,9 @@ namespace Student_Management_System.Controllers
         //    return success ? Ok("Role assigned successfully.") : BadRequest("Failed to assign role.");
         //}
 
+
+
+        //[Authorize(Policy = "AssignRole")]
         [HttpPost("AssignRole")]
         public async Task<IActionResult> AssignRoleToUser([FromBody] RoleAssignDto model)
         {
@@ -68,7 +72,7 @@ namespace Student_Management_System.Controllers
         }
 
 
-        [HttpPost("RemoveRole")]
+        [HttpDelete("RemoveRole")]
         public async Task<IActionResult> RemoveRoleFromUser([FromBody] RoleAssignDto model)
         {
             var success = await _roleRepository.RemoveRoleFromUserAsync(model.UserId, model.RoleName);
