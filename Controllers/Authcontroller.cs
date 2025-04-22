@@ -53,9 +53,9 @@ namespace StudentManagement.Controllers
             if (!result.Succeeded)
                 return Ok(ApiMassage.RegistrationFailed);
 
-           // await _userManager.AddToRoleAsync(usernew, model.Role);
-            return Ok(ApiMassage.RegistrationSuccess);
-            }
+            // await _userManager.AddToRoleAsync(usernew, model.Role);
+            return Ok(new { message = ApiMassage.RegistrationSuccess });
+        }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)

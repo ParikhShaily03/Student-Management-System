@@ -38,7 +38,7 @@ namespace Student_Management_System.Controllers
             var result = await _permissionService.CreatePermissionAsync(permissionDto);
             if (!result) return BadRequest("Failed to create permission");
 
-            return CreatedAtAction(nameof(GetPermissionById), new { id = permissionDto.Id }, permissionDto);
+            return Ok(new { message = "Permission Added successfully", result });
         }
 
         [HttpPut("{id}")]
@@ -49,7 +49,8 @@ namespace Student_Management_System.Controllers
             var result = await _permissionService.UpdatePermissionAsync(permissionDto);
             if (!result) return NotFound();
 
-            return NoContent();
+            return Ok(new { message = "Permission updated successfully" });
+
         }
 
         [HttpDelete("{id}")]
@@ -58,19 +59,43 @@ namespace Student_Management_System.Controllers
             var result = await _permissionService.DeletePermissionAsync(id);
             if (!result) return NotFound();
 
-            return NoContent();
+            return Ok(new { message = "Permission deleted successfully" });
+
         }
 
-        [HttpPost("assign")]
-        public async Task<IActionResult> AssignPermissionToRole([FromBody] RolePermissionDto rolePermissionDto)
+        [HttpPost("assign-to-roles")]
+        public async Task<IActionResult> AssignPermissionToRoles([FromBody] RolePermissionDto rolePermissionDto)
         {
-            var result = await _permissionService.AssignPermissionToRoleAsync(
-                rolePermissionDto);
+            //var permissionAssigned = await _permissionService.IsPermissionAssignedToRoleAsync(rolePermissionDto.RoleId, rolePermissionDto.PermissionId);
 
-            if (!result) return BadRequest("Failed to assign permission to role");
+            //if (permissionAssigned)
+            //{
+            //    return BadRequest("Permission is already assigned to this role.");
+            //} 
 
-            return Ok();
+            var result = await _permissionService.AssignPermissionToRolesAsync(rolePermissionDto.RoleIds, rolePermissionDto.PermissionId);
+
+            if (!result) return BadRequest("Failed to assign permission to roles.");
+
+            return Ok(new { message = "Permission assigned successfully to the roles." });
+
         }
+
+
+        [HttpPost("assign-multiple-permissions-to-role")]
+        public async Task<IActionResult> AssignMultiplePermissionsToRole([FromBody] RolePermissionsDto dto)
+        {
+            var result = await _permissionService.AssignMultiplePermissionsToRoleAsync(dto.RoleId, dto.PermissionsId);
+
+            if (!result)
+                return BadRequest("Failed to assign permissions to the role.");
+
+            return Ok(new { message = "Permissions successfully assigned to the role." });
+        }
+
+
+
+
 
         //[HttpPost("remove")]
         //public async Task<IActionResult> RemovePermissionFromRole([FromBody] RolePermissionDto rolePermissionDto)

@@ -12,8 +12,8 @@ using Student_Management_System.Data;
 namespace Student_Management_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250409044058_initIdentity")]
-    partial class initIdentity
+    [Migration("20250422075922_init3")]
+    partial class init3
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -268,9 +268,9 @@ namespace Student_Management_System.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "09d84536-e697-4cd6-8876-49c477c9c9ce",
+                            Id = "b4472a6e-670c-4b4a-a9e4-216d2bd8d648",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "892f72c6-f161-4b71-b8a6-a348d3d0a549",
+                            ConcurrencyStamp = "23e94d0a-9be6-4cdb-be0c-28b71bd21bd8",
                             Department = "CE",
                             Email = "admin@example.com",
                             EmailConfirmed = false,
@@ -278,15 +278,15 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyAdmin1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "23768b81-8be2-4cba-b0c5-c83760fdd22c",
+                            SecurityStamp = "35993780-d0da-4d32-8b46-421f3745718e",
                             TwoFactorEnabled = false,
                             UserName = "Admin"
                         },
                         new
                         {
-                            Id = "24488a43-dfee-4410-ba2f-9e051d61d753",
+                            Id = "4ba4043f-ca99-4855-989d-77314a8dec47",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "3154c47a-e9cc-4f47-aa99-9bbdec280219",
+                            ConcurrencyStamp = "a5c9acff-db33-4b47-870a-b699e2c5792f",
                             Department = "CE",
                             Email = "user@example.com",
                             EmailConfirmed = false,
@@ -294,10 +294,28 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyUser1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "9f4de602-820b-4a35-b15b-4dcf4b29ebbc",
+                            SecurityStamp = "0c07e86e-7c24-48bc-a41f-ed7711438beb",
                             TwoFactorEnabled = false,
                             UserName = "User"
                         });
+                });
+
+            modelBuilder.Entity("Student_Management_System.Models.Permission", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Permissions");
                 });
 
             modelBuilder.Entity("Student_Management_System.Models.RevokedToken", b =>
@@ -318,6 +336,28 @@ namespace Student_Management_System.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("RevokedTokens");
+                });
+
+            modelBuilder.Entity("Student_Management_System.Models.RolePermission", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("PermissionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PermissionId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -369,6 +409,30 @@ namespace Student_Management_System.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Student_Management_System.Models.RolePermission", b =>
+                {
+                    b.HasOne("Student_Management_System.Models.Permission", "Permission")
+                        .WithMany()
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ApplicationRole", "Role")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("ApplicationRole", b =>
+                {
+                    b.Navigation("RolePermissions");
                 });
 #pragma warning restore 612, 618
         }

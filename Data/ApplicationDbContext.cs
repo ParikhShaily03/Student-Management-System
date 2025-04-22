@@ -29,8 +29,15 @@ namespace Student_Management_System.Data
                 new User { Id = Guid.NewGuid().ToString(), Name = "MyUser1", UserName = "User", Email = "user@example.com", Department = "CE" }
             );
 
+            // modelBuilder.Entity<Permission>()
+            //.Property(p => p.Name)
+            //.HasConversion<string>();
 
-            modelBuilder.Entity<ApplicationRole>(entity =>
+
+        
+
+
+        modelBuilder.Entity<ApplicationRole>(entity =>
             {
                 entity.Property(r => r.CreatedDate).IsRequired();
                 entity.Property(r => r.CreatedBy).HasMaxLength(100);

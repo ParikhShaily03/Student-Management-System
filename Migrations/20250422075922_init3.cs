@@ -4,29 +4,29 @@
 
 namespace Student_Management_System.Migrations
 {
-    public partial class Update : Migration
+    public partial class init3 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DeleteData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
-                keyValue: "84e68ed4-ab4a-423b-a62b-1caa7cc63707");
+                keyValue: "3cc0a92c-f772-4522-9baf-c493d4016c36");
 
             migrationBuilder.DeleteData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
-                keyValue: "b48d7b8f-3573-4c60-a3d8-c39f3a7f9d46");
+                keyValue: "e0010539-e4d1-415e-b922-5841efa407b4");
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Department", "Email", "EmailConfirmed", "IsDeleted", "LockoutEnabled", "LockoutEnd", "Name", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "02198141-cd89-4863-b1c4-c23a032e81d9", 0, "e9e19738-0e70-4f75-ba42-dc6a6621e7c0", "CE", "user@example.com", false, false, false, null, "MyUser1", null, null, null, null, false, "f022d6dc-105d-472f-8d14-10f2a31bfa08", false, "User" });
+                values: new object[] { "4ba4043f-ca99-4855-989d-77314a8dec47", 0, "a5c9acff-db33-4b47-870a-b699e2c5792f", "CE", "user@example.com", false, false, false, null, "MyUser1", null, null, null, null, false, "0c07e86e-7c24-48bc-a41f-ed7711438beb", false, "User" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Department", "Email", "EmailConfirmed", "IsDeleted", "LockoutEnabled", "LockoutEnd", "Name", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "604e973f-779d-40ae-8ece-0e9a4f747f63", 0, "abfa1f28-5ead-49ff-87fa-fdd4a320498a", "CE", "admin@example.com", false, false, false, null, "MyAdmin1", null, null, null, null, false, "66eab966-43cf-43f8-9ad9-4a734cd8e6de", false, "Admin" });
+                values: new object[] { "b4472a6e-670c-4b4a-a9e4-216d2bd8d648", 0, "23e94d0a-9be6-4cdb-be0c-28b71bd21bd8", "CE", "admin@example.com", false, false, false, null, "MyAdmin1", null, null, null, null, false, "35993780-d0da-4d32-8b46-421f3745718e", false, "Admin" });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -34,22 +34,22 @@ namespace Student_Management_System.Migrations
             migrationBuilder.DeleteData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
-                keyValue: "02198141-cd89-4863-b1c4-c23a032e81d9");
+                keyValue: "4ba4043f-ca99-4855-989d-77314a8dec47");
 
             migrationBuilder.DeleteData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
-                keyValue: "604e973f-779d-40ae-8ece-0e9a4f747f63");
+                keyValue: "b4472a6e-670c-4b4a-a9e4-216d2bd8d648");
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Department", "Email", "EmailConfirmed", "IsDeleted", "LockoutEnabled", "LockoutEnd", "Name", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "84e68ed4-ab4a-423b-a62b-1caa7cc63707", 0, "78d739f0-0e95-4b39-be68-23e71089dd22", "CE", "admin@example.com", false, false, false, null, "MyAdmin1", null, null, null, null, false, "90e8e4c9-f05b-423c-959d-16b0ecba59e8", false, "Admin" });
+                values: new object[] { "3cc0a92c-f772-4522-9baf-c493d4016c36", 0, "ec339b12-b877-4561-888d-157c8c6a568e", "CE", "user@example.com", false, false, false, null, "MyUser1", null, null, null, null, false, "e3c1acb2-f136-4016-8c4b-a26df23c4a70", false, "User" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Department", "Email", "EmailConfirmed", "IsDeleted", "LockoutEnabled", "LockoutEnd", "Name", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "b48d7b8f-3573-4c60-a3d8-c39f3a7f9d46", 0, "2ffa9f42-d55a-420d-990a-ba5ef55a4438", "CE", "user@example.com", false, false, false, null, "MyUser1", null, null, null, null, false, "81ddddd6-00ab-478b-b7ca-2fb141bfe84b", false, "User" });
+                values: new object[] { "e0010539-e4d1-415e-b922-5841efa407b4", 0, "be03b7dc-35ae-4852-a37a-64c161c75ab5", "CE", "admin@example.com", false, false, false, null, "MyAdmin1", null, null, null, null, false, "c6622166-4d1d-4f9a-bf97-d2e11470501f", false, "Admin" });
         }
     }
 }

@@ -266,9 +266,9 @@ namespace Student_Management_System.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "9cae5555-b7c2-486f-8453-394e30102d1a",
+                            Id = "b4472a6e-670c-4b4a-a9e4-216d2bd8d648",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "8967a8b3-52ce-4d98-9d1f-6e70d4f56fec",
+                            ConcurrencyStamp = "23e94d0a-9be6-4cdb-be0c-28b71bd21bd8",
                             Department = "CE",
                             Email = "admin@example.com",
                             EmailConfirmed = false,
@@ -276,15 +276,15 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyAdmin1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "88a67037-d1d5-45d1-a3f4-d11083d703a9",
+                            SecurityStamp = "35993780-d0da-4d32-8b46-421f3745718e",
                             TwoFactorEnabled = false,
                             UserName = "Admin"
                         },
                         new
                         {
-                            Id = "256583be-111b-443b-97b5-c8aa905002bf",
+                            Id = "4ba4043f-ca99-4855-989d-77314a8dec47",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "4d30c5e6-5551-4157-b19a-a93f4f3c8536",
+                            ConcurrencyStamp = "a5c9acff-db33-4b47-870a-b699e2c5792f",
                             Department = "CE",
                             Email = "user@example.com",
                             EmailConfirmed = false,
@@ -292,7 +292,7 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyUser1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "3940b0d8-d20a-4059-b72b-147016beb527",
+                            SecurityStamp = "0c07e86e-7c24-48bc-a41f-ed7711438beb",
                             TwoFactorEnabled = false,
                             UserName = "User"
                         });
@@ -302,13 +302,6 @@ namespace Student_Management_System.Migrations
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .IsRequired()

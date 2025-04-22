@@ -1,32 +1,41 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Student_Management_System.Migrations
 {
-    public partial class initPac : Migration
+    public partial class Catremove : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DeleteData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
-                keyValue: "09d84536-e697-4cd6-8876-49c477c9c9ce");
+                keyValue: "256583be-111b-443b-97b5-c8aa905002bf");
 
             migrationBuilder.DeleteData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
-                keyValue: "24488a43-dfee-4410-ba2f-9e051d61d753");
+                keyValue: "9cae5555-b7c2-486f-8453-394e30102d1a");
+
+            migrationBuilder.DropColumn(
+                name: "Category",
+                table: "Permissions");
+
+            migrationBuilder.DropColumn(
+                name: "CreatedDate",
+                table: "Permissions");
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Department", "Email", "EmailConfirmed", "IsDeleted", "LockoutEnabled", "LockoutEnd", "Name", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "b60582ce-1d3e-43fb-8f8f-660be2078b4a", 0, "0d4c9d7f-24c4-414b-a48f-9c05d377b213", "CE", "user@example.com", false, false, false, null, "MyUser1", null, null, null, null, false, "a4f13803-692f-4867-aede-62e91bb79a78", false, "User" });
+                values: new object[] { "66af7ae3-11db-4622-91bd-bb2e10634100", 0, "2ad9c0fa-0df3-4e68-8cb5-45bb20035f25", "CE", "user@example.com", false, false, false, null, "MyUser1", null, null, null, null, false, "9d6d85b3-6a9b-406c-9c52-53cd0c583c41", false, "User" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Department", "Email", "EmailConfirmed", "IsDeleted", "LockoutEnabled", "LockoutEnd", "Name", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "f65c3aea-53a2-4b59-a656-54cf1f3e5d48", 0, "dfaf001e-3b5f-4799-a535-f729c94f0806", "CE", "admin@example.com", false, false, false, null, "MyAdmin1", null, null, null, null, false, "43c58869-e208-4961-8de5-5d91285c57d8", false, "Admin" });
+                values: new object[] { "fc743e36-b58b-44b5-b165-ad864839ceae", 0, "4da314bd-4a2e-49ab-b39b-286d9e6588d1", "CE", "admin@example.com", false, false, false, null, "MyAdmin1", null, null, null, null, false, "c7cc351d-bcf6-4dfe-a494-bc099f1739e6", false, "Admin" });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -34,22 +43,36 @@ namespace Student_Management_System.Migrations
             migrationBuilder.DeleteData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
-                keyValue: "b60582ce-1d3e-43fb-8f8f-660be2078b4a");
+                keyValue: "66af7ae3-11db-4622-91bd-bb2e10634100");
 
             migrationBuilder.DeleteData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
-                keyValue: "f65c3aea-53a2-4b59-a656-54cf1f3e5d48");
+                keyValue: "fc743e36-b58b-44b5-b165-ad864839ceae");
+
+            migrationBuilder.AddColumn<string>(
+                name: "Category",
+                table: "Permissions",
+                type: "nvarchar(max)",
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<DateTime>(
+                name: "CreatedDate",
+                table: "Permissions",
+                type: "datetime2",
+                nullable: false,
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Department", "Email", "EmailConfirmed", "IsDeleted", "LockoutEnabled", "LockoutEnd", "Name", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "09d84536-e697-4cd6-8876-49c477c9c9ce", 0, "892f72c6-f161-4b71-b8a6-a348d3d0a549", "CE", "admin@example.com", false, false, false, null, "MyAdmin1", null, null, null, null, false, "23768b81-8be2-4cba-b0c5-c83760fdd22c", false, "Admin" });
+                values: new object[] { "256583be-111b-443b-97b5-c8aa905002bf", 0, "4d30c5e6-5551-4157-b19a-a93f4f3c8536", "CE", "user@example.com", false, false, false, null, "MyUser1", null, null, null, null, false, "3940b0d8-d20a-4059-b72b-147016beb527", false, "User" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Department", "Email", "EmailConfirmed", "IsDeleted", "LockoutEnabled", "LockoutEnd", "Name", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "24488a43-dfee-4410-ba2f-9e051d61d753", 0, "3154c47a-e9cc-4f47-aa99-9bbdec280219", "CE", "user@example.com", false, false, false, null, "MyUser1", null, null, null, null, false, "9f4de602-820b-4a35-b15b-4dcf4b29ebbc", false, "User" });
+                values: new object[] { "9cae5555-b7c2-486f-8453-394e30102d1a", 0, "8967a8b3-52ce-4d98-9d1f-6e70d4f56fec", "CE", "admin@example.com", false, false, false, null, "MyAdmin1", null, null, null, null, false, "88a67037-d1d5-45d1-a3f4-d11083d703a9", false, "Admin" });
         }
     }
 }
