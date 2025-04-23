@@ -56,7 +56,7 @@ namespace Student_Management_System.Repositories
             var result = await _userManager.CreateAsync(user);
             if (!result.Succeeded)
             {
-                throw new Exception(ApiMassage.Notcreated);
+                throw new Exception(ApiMessage.Notcreated);
             }
                 return new Add_EditDTO
                 {
@@ -76,11 +76,11 @@ namespace Student_Management_System.Repositories
         public async Task<bool> DeleteAsync(string id)
         {
             if (string.IsNullOrEmpty(id))
-                throw new ArgumentNullException(ApiMassage.BadRequest);
+                throw new ArgumentNullException(ApiMessage.BadRequest);
 
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                throw new Exception(ApiMassage.NotFound);
+                throw new Exception(ApiMessage.NotFound);
 
             user.IsDeleted = true; // Soft delete
 
@@ -186,7 +186,7 @@ namespace Student_Management_System.Repositories
                 // **UPDATE User**
                 user = await _userManager.FindByIdAsync(userId);
                 if (user == null)
-                    throw new Exception(ApiMassage.NotFound);
+                    throw new Exception(ApiMessage.NotFound);
 
                 // Update user properties
                 user.Name = userDto.Name;
@@ -197,7 +197,7 @@ namespace Student_Management_System.Repositories
                 var updateResult = await _userManager.UpdateAsync(user);
                 
                 if (!updateResult.Succeeded)
-                    throw new Exception(ApiMassage.NotUpdated);
+                    throw new Exception(ApiMessage.NotUpdated);
             }
             else
             {
@@ -212,7 +212,7 @@ namespace Student_Management_System.Repositories
 
                 var createResult = await _userManager.CreateAsync(user);
                 if (!createResult.Succeeded)
-                    throw new Exception(ApiMassage.Notcreated);
+                    throw new Exception(ApiMessage.Notcreated);
             }
 
             // Return updated/created user details

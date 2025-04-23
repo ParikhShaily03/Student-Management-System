@@ -1,15 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Student_Management_System.Models;
 
-namespace Student_Management_System.Models
+public class AuthorizePermissionAttribute : Attribute, IAuthorizationRequirement
 {
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class AuthorizePermissionAttribute : Attribute, IAuthorizationRequirement
-    {
-        public PermissionType Permission { get; }
+    public string Permission { get; }
 
-        public AuthorizePermissionAttribute(PermissionType permission)
-        {
-            Permission = permission;
-        }
+    public AuthorizePermissionAttribute(string permission)
+    {
+        Permission = permission;
     }
 }

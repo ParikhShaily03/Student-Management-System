@@ -6,6 +6,7 @@ using Student_Management_System.Model;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Student_Management_System.Models;
+using Student_Management_System.Enums;
 
 namespace Student_Management_System.Middleware
 {
@@ -56,55 +57,23 @@ namespace Student_Management_System.Middleware
         }
     }
 
-    public class HasPermissionAttribute : Attribute
+    public class HasPermissionAttribute : Attribute, IAuthorizationFilter
     {
-        //private string viewUsers;
-
-        //public HasPermissionAttribute(PermissionType permission) : base(typeof(PermissionRequirementFilter))
-        //{
-        //    Arguments = new object[] { permission };
-
-
-        //}
-
         public string PermissionName { get; }
 
-        public HasPermissionAttribute(string permissionName)
+        public HasPermissionAttribute(PermissionEnum permissionEnum)
         {
-            PermissionName = permissionName;
+            PermissionName = permissionEnum.ToString(); // Convert enum to string
         }
-
-
-    }
-
-    public class PermissionRequirementFilter : IAuthorizationFilter
-    {
-        private readonly string _permission;
-
-        public PermissionRequirementFilter(string permission)
-
-        {
-            _permission = permission;
-            Console.WriteLine("Checking for permission: " + _permission);
-            if (permission == null)
-            {
-                Console.WriteLine("UserPermissions is NULL");
-            }
-            else
-            {
-                Console.WriteLine("UserPermissions from context: " + string.Join(", ", permission));
-            }
-        }
-
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            try
+            try 
             {
                 if (context.HttpContext.Items.TryGetValue("UserPermissions", out var permissionsObj)
                     && permissionsObj is List<string> userPermissions)
                 {
-                    if (!userPermissions.Contains(_permission))
+                    if (!userPermissions.Contains(PermissionName))
                     {
                         context.Result = new ForbidResult(); // No permission
                     }
@@ -117,9 +86,65 @@ namespace Student_Management_System.Middleware
             catch (Exception ex)
             {
                 Console.WriteLine($"Authorization error: {ex.Message}");
-               // context.Result = new UnauthorizedResult(); // Optional fallback
             }
         }
     }
+
+    //public class PermissionRequirementFilter : IAuthorizationFilter
+    //{
+    //    private readonly string _permission;
+
+    //    public PermissionRequirementFilter(string permission)
+
+    //    {
+    //        _permission = permission;
+    //        Console.WriteLine("Checking for permission: " + _permission);
+    //        if (permission == null)
+    //        {
+    //            Console.WriteLine("UserPermissions is NULL");
+    //        }
+    //        else
+    //        {
+    //            Console.WriteLine("UserPermissions from context: " + string.Join(", ", permission));
+    //        }
+    //    }
+
+    //    public class HasPermissionAttribute : Attribute
+    //    {
+    //        public string PermissionName { get; }
+
+    //        public HasPermissionAttribute(string permissionName)
+    //        {
+    //            PermissionName = permissionName;
+    //        }
+
+
+    //    }
+
+
+    //    public void OnAuthorization(AuthorizationFilterContext context)
+    //    {
+    //        try
+    //        {
+    //            if (context.HttpContext.Items.TryGetValue("UserPermissions", out var permissionsObj)
+    //                && permissionsObj is List<string> userPermissions)
+    //            {
+    //                if (!userPermissions.Contains(_permission))
+    //                {
+    //                    context.Result = new ForbidResult(); // No permission
+    //                }
+    //            }
+    //            else
+    //            {
+    //                context.Result = new UnauthorizedResult(); // Permissions not available
+    //            }
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            Console.WriteLine($"Authorization error: {ex.Message}");
+    //           // context.Result = new UnauthorizedResult(); // Optional fallback
+    //        }
+    //    }
+    //}
 
 }

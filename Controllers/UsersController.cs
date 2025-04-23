@@ -15,12 +15,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR.Protocol;
 using Student_Management_System.Models;
 using Microsoft.Data.SqlClient;
+using Student_Management_System.Middleware;
+using static Student_Management_System.Middleware.PermissionMiddleware;
+using Student_Management_System.Enums;
 
 namespace Student_Management_System.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class UsersController : ControllerBase
     {
 
@@ -40,6 +43,7 @@ namespace Student_Management_System.Controllers
 
         [HttpGet]
         [Route("GetUsers")]
+        [HasPermission(PermissionEnum.ViewUsers)]
 
         //[HttpGet("GetUsers")]
         public async Task<IActionResult> GetUsers([FromQuery] PaginationParameters paginationParameters, [FromQuery] string search = "")
@@ -108,12 +112,12 @@ namespace Student_Management_System.Controllers
                     })
                 .ToListAsync();
 
-               
+
 
                 // ✅ Return correct pagination + search results
                 return Ok(new
                 {
-                    Message = ApiMassage.Success,
+                    Message = ApiMessage.Success,
                     Data = users,
                     TotalCount = totalCount, // Should be BEFORE pagination
                     PageNumber = paginationParameters.PageNumber,
@@ -131,16 +135,17 @@ namespace Student_Management_System.Controllers
 
         [HttpGet]
         [Route("GetUser/{id}")]
+
         public async Task<IActionResult> GetUserById(string id)
         {
             var user = await _User.GetByIdAsync(id);
             if (user == null)
             {
-                return Ok(ApiMassage.NotFound);
+                return Ok(ApiMessage.NotFound);
             }
 
             //return Ok(user);
-            return Ok( user );
+            return Ok(user);
 
 
         }
@@ -152,12 +157,12 @@ namespace Student_Management_System.Controllers
         public async Task<IActionResult> UpsertUser([FromBody] Add_EditDTO userDto, [FromQuery] Guid? ID)
         {
             if (userDto == null)
-                return Ok(ApiMassage.BadRequest);
+                return Ok(ApiMessage.BadRequest);
 
             try
             {
                 var result = await _User.UpsertUserAsyc(userDto, ID);
-                return Ok(new { Message = ApiMassage.Updated, User = result });
+                return Ok(new { Message = ApiMessage.Updated, User = result });
             }
             catch (ArgumentNullException ex)
             {
@@ -176,13 +181,13 @@ namespace Student_Management_System.Controllers
         {
             if (string.IsNullOrEmpty(id))
             {
-                return Ok(ApiMassage.BadRequest);
+                return Ok(ApiMessage.BadRequest);
             }
 
             var isDeleted = await _User.DeleteAsync(id);
             if (!isDeleted)
             {
-                return Ok(ApiMassage.InternalServerError);
+                return Ok(ApiMessage.InternalServerError);
             }
 
             return Ok(new { Message = "User soft deleted successfully." });
@@ -230,39 +235,39 @@ namespace Student_Management_System.Controllers
     }
 }
 
-    ////working
+////working
 
-    ////option 2
-    //[HttpPost]
-    //[Route("AddStudents")]
-    //public async Task<IActionResult> AddUser([FromBody] Add_EditDTO userDto)
-    //{
-    //    if (userDto == null)
-    //    {
-    //        return BadRequest("Invalid user data.");
-    //    }
+////option 2
+//[HttpPost]
+//[Route("AddStudents")]
+//public async Task<IActionResult> AddUser([FromBody] Add_EditDTO userDto)
+//{
+//    if (userDto == null)
+//    {
+//        return BadRequest("Invalid user data.");
+//    }
 
-    //    var createdUser = await _User.AddAsync(userDto);
-    //    return Ok(new { Message = "User added successfully.", User = createdUser });
-    //}
-
-
+//    var createdUser = await _User.AddAsync(userDto);
+//    return Ok(new { Message = "User added successfully.", User = createdUser });
+//}
 
 
-    ////working
 
-    //[HttpPut]
-    //[Route("Updatestudents")]
-    //public async Task<IActionResult> UpdateUser([FromBody] Add_EditDTO userDto)
-    //{
-    //    if (userDto == null || string.IsNullOrEmpty(userDto.Id))
-    //    {
-    //        return BadRequest("Invalid user data.");
-    //    }
 
-    //    var updatedUser = await _User.UpdateAsync(userDto);
-    //    return Ok(new { Message = "User updated successfully.", User = updatedUser });
-    //}
+////working
+
+//[HttpPut]
+//[Route("Updatestudents")]
+//public async Task<IActionResult> UpdateUser([FromBody] Add_EditDTO userDto)
+//{
+//    if (userDto == null || string.IsNullOrEmpty(userDto.Id))
+//    {
+//        return BadRequest("Invalid user data.");
+//    }
+
+//    var updatedUser = await _User.UpdateAsync(userDto);
+//    return Ok(new { Message = "User updated successfully.", User = updatedUser });
+//}
 
 
 

@@ -64,10 +64,48 @@ namespace Student_Management_System.Service
             return await _permissionRepository.DeletePermissionAsync(id);
         }
 
-        public async Task<bool> AssignPermissionToRoleAsync(RolePermissionDto dto)
+        //public async Task<bool> AssignPermissionToRoleAsync(RolePermissionDto dto)
+        //{
+        //    return await _permissionRepository.AssignPermissionToRoleAsync(dto.RoleIds.ToString(), dto.PermissionId);
+        //}
+
+        public async Task<bool> AssignPermissionToRolesAsync(List<string> roleIds, string permissionId)
         {
-            return await _permissionRepository.AssignPermissionToRoleAsync(dto.RoleId, dto.PermissionId);
+            bool allAssigned = true;
+            foreach (var roleId in roleIds)
+            {
+                var result = await _permissionRepository.AssignPermissionToRoleAsync(roleId, permissionId);
+                if (!result)
+                {
+                    allAssigned = false;
+                    // Optionally, handle partial failures here
+                }
+            }
+            return allAssigned;
         }
+        public async Task<bool> AssignMultiplePermissionsToRoleAsync(string roleId, List<string> permissionsId)
+        {
+            bool allAssigned = true;
+            foreach (var permissionId in permissionsId)
+            {
+                var result = await _permissionRepository.AssignPermissionToRoleAsync(roleId, permissionId);
+                if (!result)
+                {
+                    allAssigned = false;
+                    // Optionally, handle partial failures here
+                }
+            }
+            return allAssigned;
+        }
+
+
+        //public async Task<bool> AssignMultiplePermissionsToRoleAsync(string roleId, List<string> permissionsId)
+        //{
+        //    return await _permissionRepository.AssignMultiplePermissionsToRoleAsync(roleId, permissionsId);
+        //}
+
+
+
     }
 }
         //public async

@@ -40,7 +40,7 @@ namespace StudentManagement.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             if (!ModelState.IsValid)
-                return Ok(ApiMassage.BadRequest);
+                return Ok(ApiMessage.BadRequest);
 
             User usernew = new User
             {
@@ -51,10 +51,10 @@ namespace StudentManagement.Controllers
             var result = await _userManager.CreateAsync(usernew, model.Password);
 
             if (!result.Succeeded)
-                return Ok(ApiMassage.RegistrationFailed);
+                return Ok(ApiMessage.RegistrationFailed);
 
             // await _userManager.AddToRoleAsync(usernew, model.Role);
-            return Ok(new { message = ApiMassage.RegistrationSuccess });
+            return Ok(new { message = ApiMessage.RegistrationSuccess });
         }
 
         [HttpPost("login")]
@@ -63,7 +63,7 @@ namespace StudentManagement.Controllers
             var user = await _userManager.FindByNameAsync(model.UserName)
          ?? await _userManager.FindByEmailAsync(model.UserName);
             if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
-                return Ok(ApiMassage.Unauthorized);
+                return Ok(ApiMessage.Unauthorized);
 
             // var roles = await _userManager.GetRolesAsync(user);
             var roles = await _roleRepository.GetUserRolesAsync(user.Id);
@@ -75,7 +75,7 @@ namespace StudentManagement.Controllers
             //return Ok(new AuthResponse { Token = token}, ApiMassage.LoginSuccess);
             return Ok(new
             {
-                message = ApiMassage.LoginSuccess,
+                message = ApiMessage.LoginSuccess,
                 data = new AuthResponse { Token = token }
             });
         }
@@ -141,7 +141,7 @@ namespace StudentManagement.Controllers
                 issuer: jwtSettings["Issuer"],
                 audience: jwtSettings["Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(Convert.ToInt32(jwtSettings[ApiMassage.ExpiryMinutes])),
+                expires: DateTime.UtcNow.AddMinutes(Convert.ToInt32(jwtSettings[ApiMessage.ExpiryMinutes])),
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256));
 
             return new JwtSecurityTokenHandler().WriteToken(token);

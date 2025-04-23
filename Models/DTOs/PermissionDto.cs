@@ -1,4 +1,6 @@
-﻿namespace Student_Management_System.Models.DTOs
+﻿using Student_Management_System.Models.DTOs;
+
+namespace Student_Management_System.Models.DTOs
 {
     // DTOs/PermissionDto.cs
     public class PermissionDto
@@ -12,14 +14,14 @@
     // DTOs/RolePermissionDto.cs
     public class RolePermissionDto
     {
-        public string RoleId { get; set; }
+        public List<string> RoleIds { get; set; }
         public string PermissionId { get; set; }
     }
 
     // DTOs/UserPermissionsDto.cs
-    public class UserPermissionsDto
+    public class RolePermissionsDto
     {
-        public string UserId { get; set; }
+        public string RoleId { get; set; }
         public List<string> Permissions { get; set; }
     }
 }

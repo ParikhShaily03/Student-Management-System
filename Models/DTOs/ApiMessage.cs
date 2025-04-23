@@ -1,6 +1,6 @@
 ﻿namespace Student_Management_System.Models.DTOs
 {
-    public class ApiMassage
+    public class ApiMessage
     {
         // Success Messages
         public static readonly string Success = "Operation completed successfully.";

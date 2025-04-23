@@ -81,11 +81,11 @@ namespace Student_Management_System.Controllers
 
         }
 
-
+       
         [HttpPost("assign-multiple-permissions-to-role")]
         public async Task<IActionResult> AssignMultiplePermissionsToRole([FromBody] RolePermissionsDto dto)
         {
-            var result = await _permissionService.AssignMultiplePermissionsToRoleAsync(dto.RoleId, dto.PermissionsId);
+            var result = await _permissionService.AssignMultiplePermissionsToRoleAsync(dto.RoleId, dto.Permissions);
 
             if (!result)
                 return BadRequest("Failed to assign permissions to the role.");

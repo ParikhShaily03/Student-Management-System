@@ -51,7 +51,6 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 
-// Register ApplicationDbContext (placed in Models folder)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -59,17 +58,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped(typeof(IUser<>), typeof(UserRepo<>));
 
 
-//Added Identity
 builder.Services.AddIdentity<User, ApplicationRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-//JWT AUthentication
+
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-//var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]);
-
-//var key = Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Secret"]); // 🔥 Ensure key is 32+ chars
-
 var secretKey = jwtSettings["Secret"];
 if (string.IsNullOrEmpty(secretKey) || secretKey.Length < 32)
 {
@@ -102,39 +96,37 @@ builder.Services.AddAuthentication(options =>
 Console.WriteLine($"Key Length: {key.Length * 8} bits");
 
 
-// Enable CORS for frontend integration.
+// Register the repository and services
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<PermissionHandler>();
+
+//builder.Services.AddAuthorization(options =>
+//{
+//    options.AddPolicy("PermissionPolicy", policy =>
+//        policy.Requirements.Add(new AuthorizePermissionAttribute(PermissionType.ViewUsers)));
+//});
+
+// Register the HttpContextAccessor
+
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
         policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 });
-// Add services to the container.
+
 builder.Services.AddControllers();
-//builder.Services.AddHttpContextAccessor();
-
-
-
-// Add Swagger for API documentation.
 builder.Services.AddEndpointsApiExplorer();
 
-//builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-
-
-
-//builder.Services.AddSwaggerGen(c =>
-//{
-//    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Student API", Version = "v1" });
-//});
-
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-// Add to your services configuration
-builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
-builder.Services.AddScoped<IPermissionService, PermissionService>();
-
-// Add authorization services
-builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
-//builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+//builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+//builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
+//builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -163,43 +155,54 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 
+// Add middleware
+
+//builder.Services.AddScoped<PermissionMiddleware>();
+
+//builder.Services.AddScoped<RoleMiddleware>();
+
+//builder.Services.AddScoped<LoggingMiddleware>();
+
+
 var app = builder.Build();
 
 
 
 
 
+// Use the CORS policy
+app.UseCors("AllowAll");
+
+// Token Validation Middleware (Authentication)
+app.UseAuthentication();
+
 app.UseRouting();
 
 
-app.UseCors("AllowAll");
-app.UseMiddleware<TokenValidationMiddleware>();
-app.UseAuthentication();  // Ensure Authentication comes first
-app.UseRoleMiddleware();
-app.UseAuthorization();   // Then Authorization
+// Role Middleware (Optional, for role-based authorization)
+app.UseMiddleware<RoleMiddleware>();
 
-//app.UseMiddleware<RoleMiddleware>();
-app.UseRoleMiddleware();
+// Permission Middleware (for dynamic permission validation)
+app.UseMiddleware<PermissionMiddleware>();
+
+// Logging Middleware (for logging requests)
 app.UseMiddleware<LoggingMiddleware>();
 
+// Use Authorization to apply the permission policies
+app.UseAuthorization();
+
+// Enable Swagger UI for API documentation in development
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-//app.UseSwagger();
-//app.UseSwaggerUI();
-
-
-
+// Map API controllers
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
 });
-//app.MapControllers();
-
-//app.Run();
 try
 {
     Log.Information("Starting the application...");

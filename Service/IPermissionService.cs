@@ -12,7 +12,7 @@ namespace Student_Management_System.Service
         Task<bool> DeletePermissionAsync(string id);
         // Task<bool> AssignPermissionToRoleAsync(RolePermissionDto dto);
 
-        Task<bool> IsPermissionAssignedToRoleAsync(string roleIds, string permissionId);
+        //Task<bool> IsPermissionAssignedToRoleAsync(string roleIds, string permissionId);
         Task<bool> AssignPermissionToRolesAsync(List<string> roleIds, string permissionId);
 
         Task<bool> AssignMultiplePermissionsToRoleAsync(string roleId, List<string> permissionsId);
