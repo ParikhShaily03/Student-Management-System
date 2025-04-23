@@ -16,6 +16,7 @@ namespace Student_Management_System.Service
         Task<bool> AssignPermissionToRolesAsync(List<string> roleIds, string permissionId);
 
         Task<bool> AssignMultiplePermissionsToRoleAsync(string roleId, List<string> permissionsId);
+         
 
 
 

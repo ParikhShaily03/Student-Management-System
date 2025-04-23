@@ -19,6 +19,8 @@ namespace Student_Management_System.Data
 
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
+
+        public DbSet<Menu> Menus { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Student_Management_System.Data;
 
@@ -11,9 +12,10 @@ using Student_Management_System.Data;
 namespace Student_Management_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250423125324_initmenu1")]
+    partial class initmenu1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -266,9 +268,9 @@ namespace Student_Management_System.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "b608502c-18a2-4142-ac8d-dac04e609f08",
+                            Id = "b0ecff55-b639-4de8-b6ab-c07bf0d755a5",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "fc032d97-19f9-456a-b6b5-5890d2fd1708",
+                            ConcurrencyStamp = "479d064d-a42d-4bb7-8370-fac694118e5b",
                             Department = "CE",
                             Email = "admin@example.com",
                             EmailConfirmed = false,
@@ -276,15 +278,15 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyAdmin1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "2533e12d-1bdf-467a-9e02-6bdc1d4b6137",
+                            SecurityStamp = "db235380-0702-493d-ac33-1cc94512a555",
                             TwoFactorEnabled = false,
                             UserName = "Admin"
                         },
                         new
                         {
-                            Id = "3213c37e-b369-4501-bf19-7428106e2977",
+                            Id = "6fbded7b-a2e7-42d3-900e-db554b0c653b",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "5ed3960c-c588-4f30-baf6-83b9e4374d6b",
+                            ConcurrencyStamp = "d93a9575-1e08-4ada-a816-8f3a30b01c06",
                             Department = "CE",
                             Email = "user@example.com",
                             EmailConfirmed = false,
@@ -292,7 +294,7 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyUser1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "07f3ae1a-a46e-48d9-aabe-9b8c9667034c",
+                            SecurityStamp = "76a0648a-558f-430a-8ba2-89c73e936505",
                             TwoFactorEnabled = false,
                             UserName = "User"
                         });
@@ -315,10 +317,6 @@ namespace Student_Management_System.Migrations
 
                     b.Property<int?>("ParentId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
