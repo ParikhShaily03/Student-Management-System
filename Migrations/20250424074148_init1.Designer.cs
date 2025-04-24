@@ -12,8 +12,8 @@ using Student_Management_System.Data;
 namespace Student_Management_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250422190120_init4")]
-    partial class init4
+    [Migration("20250424074148_init1")]
+    partial class init1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -268,9 +268,9 @@ namespace Student_Management_System.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "0361447b-3b00-406a-b428-3da83e4f01cb",
+                            Id = "cd25f759-2d64-41cd-a551-f376da768792",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "02dceeed-bb24-4957-9d3c-3574711cb1e7",
+                            ConcurrencyStamp = "274f703d-251b-47c6-a6e1-42bc0d6c7894",
                             Department = "CE",
                             Email = "admin@example.com",
                             EmailConfirmed = false,
@@ -278,15 +278,15 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyAdmin1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "28452f7e-193c-498a-872a-cea661730bf5",
+                            SecurityStamp = "9c9df73e-8b4b-4614-a2af-5a77b05f0716",
                             TwoFactorEnabled = false,
                             UserName = "Admin"
                         },
                         new
                         {
-                            Id = "ad0f01c7-3a4b-4e0c-9010-d83b5e2a1ef4",
+                            Id = "6b844442-c7f2-4f34-b8c0-00ee22e5a087",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "b1c36e3a-5bf1-40bf-86cd-4dce3174d906",
+                            ConcurrencyStamp = "991958e6-88ad-491b-9e22-9213e48e3aec",
                             Department = "CE",
                             Email = "user@example.com",
                             EmailConfirmed = false,
@@ -294,10 +294,45 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyUser1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "b7120c2f-0adb-4407-b5dc-a4db12811a1b",
+                            SecurityStamp = "745ef391-ab6c-4049-a542-c2e7aeb20175",
                             TwoFactorEnabled = false,
                             UserName = "User"
                         });
+                });
+
+            modelBuilder.Entity("Student_Management_System.Models.Menu", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Menus");
                 });
 
             modelBuilder.Entity("Student_Management_System.Models.Permission", b =>

@@ -102,7 +102,9 @@ builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<PermissionHandler>();
 //builder.Services.AddScoped<IMenuRepository, MenuRepository>();
-builder.Services.AddScoped<IMenuService, MenuService>();
+//builder.Services.AddScoped<IMenuService, MenuService>();
+builder.Services.AddScoped<IMenuService,MenuService>();
+
 
 
 //builder.Services.AddAuthorization(options =>

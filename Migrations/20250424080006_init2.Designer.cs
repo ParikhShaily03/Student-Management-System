@@ -12,7 +12,7 @@ using Student_Management_System.Data;
 namespace Student_Management_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250422071352_init2")]
+    [Migration("20250424080006_init2")]
     partial class init2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -268,9 +268,9 @@ namespace Student_Management_System.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "e0010539-e4d1-415e-b922-5841efa407b4",
+                            Id = "afc567ea-1801-4a43-97ba-970e09923dee",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "be03b7dc-35ae-4852-a37a-64c161c75ab5",
+                            ConcurrencyStamp = "aae41441-695c-43b4-9d6e-fb644d9f9d4b",
                             Department = "CE",
                             Email = "admin@example.com",
                             EmailConfirmed = false,
@@ -278,15 +278,15 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyAdmin1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "c6622166-4d1d-4f9a-bf97-d2e11470501f",
+                            SecurityStamp = "c4079a37-778a-4110-800e-f5e2db489b1e",
                             TwoFactorEnabled = false,
                             UserName = "Admin"
                         },
                         new
                         {
-                            Id = "3cc0a92c-f772-4522-9baf-c493d4016c36",
+                            Id = "2b3a98af-282c-4f0e-be9c-a743f84e1115",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ec339b12-b877-4561-888d-157c8c6a568e",
+                            ConcurrencyStamp = "e8bde6ab-b199-4ae8-9583-527356d6c0db",
                             Department = "CE",
                             Email = "user@example.com",
                             EmailConfirmed = false,
@@ -294,16 +294,58 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyUser1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "e3c1acb2-f136-4016-8c4b-a26df23c4a70",
+                            SecurityStamp = "d43f2ddf-b563-4fd8-849b-7994f326c210",
                             TwoFactorEnabled = false,
                             UserName = "User"
                         });
+                });
+
+            modelBuilder.Entity("Student_Management_System.Models.Menu", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Menus");
                 });
 
             modelBuilder.Entity("Student_Management_System.Models.Permission", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .IsRequired()

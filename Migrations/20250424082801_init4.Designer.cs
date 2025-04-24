@@ -12,8 +12,8 @@ using Student_Management_System.Data;
 namespace Student_Management_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250423114340_initmenu")]
-    partial class initmenu
+    [Migration("20250424082801_init4")]
+    partial class init4
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -63,6 +63,58 @@ namespace Student_Management_System.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Menu", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("CssClass")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsExternal")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSubMenu")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Target")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Menus");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -268,9 +320,9 @@ namespace Student_Management_System.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "26872d11-61d0-4201-aa9b-db28f8e52806",
+                            Id = "6ccda09e-96db-4d46-9ed7-305ae9ecbf95",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "55e0a4ba-5089-4e62-926b-45103deae493",
+                            ConcurrencyStamp = "83c5b61a-1699-4514-824a-e3bb17372b2f",
                             Department = "CE",
                             Email = "admin@example.com",
                             EmailConfirmed = false,
@@ -278,15 +330,15 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyAdmin1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "2e007c24-8b5d-4970-8303-b5cf894e5ae2",
+                            SecurityStamp = "ca732861-b88c-4ffb-9db4-d21c09be07a8",
                             TwoFactorEnabled = false,
                             UserName = "Admin"
                         },
                         new
                         {
-                            Id = "55d59edc-49ad-4400-9b5d-ee81388b28f5",
+                            Id = "52323e02-06ed-47d2-b4b0-05db15a1ed57",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "f1054f9f-c645-4fbc-b4f3-26d8d855fe92",
+                            ConcurrencyStamp = "81ec1be4-232e-4995-83e6-2cad35bdb7f2",
                             Department = "CE",
                             Email = "user@example.com",
                             EmailConfirmed = false,
@@ -294,45 +346,10 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyUser1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "b24cdc79-ff1e-4013-94f3-c33e182fcd3d",
+                            SecurityStamp = "9fabf50a-e4c5-4b04-8b7d-a73d0c2e8d77",
                             TwoFactorEnabled = false,
                             UserName = "User"
                         });
-                });
-
-            modelBuilder.Entity("Student_Management_System.Models.Menu", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Icon")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Menus");
                 });
 
             modelBuilder.Entity("Student_Management_System.Models.Permission", b =>
