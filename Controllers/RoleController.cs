@@ -20,9 +20,9 @@ namespace Student_Management_System.Controllers
 
         }
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAllRoles()
+        public async Task<IActionResult> GetAllRoles([FromQuery] string? search, [FromQuery] string? sortBy = "name", [FromQuery] bool descending = false)
         {
-            var roles = await _roleRepository.GetAllRolesAsync();
+            var roles = await _roleRepository.GetAllRolesAsync(search, sortBy, descending);
             return Ok(roles);
         }
 
@@ -43,40 +43,60 @@ namespace Student_Management_System.Controllers
                 return BadRequest("Role name cannot be empty.");
 
             bool success = await _roleRepository.CreateRoleAsync(roleName);
-            return success ? Ok("Role created successfully.") : BadRequest("Role already exists.");
+            if (success)
+                return Ok(new { message = "Role created successfully." });
+
+            return Conflict(new { message = "Role already exists." });
+        }
+
+        [HttpPut("Update")]
+        public async Task<IActionResult> UpdateRole([FromBody] RoleDTO model)
+        {
+            if (string.IsNullOrWhiteSpace(model.Id) || string.IsNullOrWhiteSpace(model.Name))
+                return BadRequest("Invalid input.");
+
+            var success = await _roleRepository.UpdateRoleAsync(model.Id, model.Name);
+            if (success)
+                return Ok(new { message = "Role updated successfully.", Data= model.Name });
+
+            return Conflict(new { message = "Failed to update role." });
         }
 
         // ✅ Delete Role
-        [HttpDelete("Delete/{roleId}")]
-        public async Task<IActionResult> DeleteRole(string roleId)
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> DeleteRole([FromQuery] string roleId)
         {
             bool success = await _roleRepository.DeleteRoleAsync(roleId);
-            return success ? Ok("Role deleted successfully.") : NotFound("Role not found.");
+            if (success)
+                return Ok(new { message = "Role deleted successfully." });
+
+            return NotFound(new { message = "Role not found." });
         }
 
-        //[HttpPost("AssignRole")]
-        //public async Task<IActionResult> AssignRoleToUser([FromQuery] string userId , [FromQuery] string roleName)
-        //{
-        //    var success = await _roleRepository.AssignRoleToUserAsync(userId, roleName);
-        //    return success ? Ok("Role assigned successfully.") : BadRequest("Failed to assign role.");
-        //}
-
-
+       
 
         //[Authorize(Policy = "AssignRole")]
         [HttpPost("AssignRole")]
         public async Task<IActionResult> AssignRoleToUser([FromBody] RoleAssignDto model)
         {
             var success = await _roleRepository.AssignRoleToUserAsync(model.UserId, model.RoleName);
-            return success ? Ok("Role assigned successfully.") : BadRequest("Failed to assign role.");
+            if (success)
+                return Ok(new { message = "Role assigned successfully." });
+
+            return NotFound(new { message = "Failed to assign role." });
+           // return success ? Ok("Role assigned successfully.") : BadRequest("Failed to assign role.");
         }
 
 
-        [HttpDelete("RemoveRole")]
+        [HttpPost("RemoveRole")]
         public async Task<IActionResult> RemoveRoleFromUser([FromBody] RoleAssignDto model)
         {
             var success = await _roleRepository.RemoveRoleFromUserAsync(model.UserId, model.RoleName);
-            return success ? Ok("Role removed successfully.") : BadRequest("Failed to remove role.");
+           // return success ? Ok("Role removed successfully.") : BadRequest("Failed to remove role.");
+            if (success)
+                return Ok(new { message = "Role removed successfully." });
+
+            return NotFound(new { message = "Failed to remove role." });
         }
 
         [HttpGet("UserRoles/{userId}")]

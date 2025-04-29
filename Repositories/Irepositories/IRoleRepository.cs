@@ -9,10 +9,12 @@ namespace Student_Management_System.Repositories.Irepositories
     {
 
         //Task<IEnumerable<ApplicationRole>> GetAllRolesAsync();
-        Task<IEnumerable<ApplicationRole>> GetAllRolesAsync(); // ✔️ matches implementation
+        Task<IEnumerable<RoleDTO>> GetAllRolesAsync(string? search, string? sortBy, bool descending); // ✔️ matches implementation
 
         Task<ApplicationRole> GetRoleByIdAsync(string roleId);
         Task<bool> CreateRoleAsync(string roleName);
+        Task<bool> UpdateRoleAsync(string roleId, string newRoleName);
+
         Task<bool> DeleteRoleAsync(string roleId);
 
         Task<bool> AssignRoleToUserAsync(string userId, string RoleId);

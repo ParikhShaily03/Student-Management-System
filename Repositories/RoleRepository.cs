@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Globalization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Student_Management_System.Model;
 using Student_Management_System.Models.DTOs;
 using Student_Management_System.Repositories.Irepositories;
@@ -18,9 +20,33 @@ namespace Student_Management_System.Repositories
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<IEnumerable<ApplicationRole>> GetAllRolesAsync()
+        public async Task<IEnumerable<RoleDTO>> GetAllRolesAsync(string? search, string? sortBy, bool descending)
         {
-            return _roleManager.Roles.Where(r => r.DeletedDate == null).ToList();
+            var query = _roleManager.Roles
+                .Where(r => r.DeletedDate == null);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.ToLower();
+                query = query.Where(r => r.Name.ToLower().Contains(search));
+            }
+
+            // Apply sorting
+            query = sortBy?.ToLower() switch
+            {
+                "createddate" => descending ? query.OrderByDescending(r => r.CreatedDate) : query.OrderBy(r => r.CreatedDate),
+                "name" or _ => descending ? query.OrderByDescending(r => r.Name) : query.OrderBy(r => r.Name),
+            };
+
+            var result = await query
+                .Select(r => new RoleDTO
+                {
+                    Id = r.Id,
+                    Name = r.Name
+                })
+                .ToListAsync(); // Use async EF Core call
+
+            return result;
         }
 
 
@@ -46,6 +72,24 @@ namespace Student_Management_System.Repositories
             var result = await _roleManager.CreateAsync(role);
             return result.Succeeded;
         }
+        
+        public async Task<bool> UpdateRoleAsync(string roleId, string newRoleName)
+{
+    var role = await _roleManager.FindByIdAsync(roleId);
+    if (role == null)
+        return false;
+
+    if (await _roleManager.RoleExistsAsync(newRoleName))
+        return false;
+
+    role.Name = newRoleName;
+    role.NormalizedName = newRoleName.ToUpper();
+    role.CreatedDate = DateTime.Now;
+   // role.UpdatedBy = _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "System";
+
+    var result = await _roleManager.UpdateAsync(role);
+    return result.Succeeded;
+}
 
         public async Task<bool> DeleteRoleAsync(string roleId)
         {
