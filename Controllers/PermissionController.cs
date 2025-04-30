@@ -93,34 +93,22 @@ namespace Student_Management_System.Controllers
             return Ok(new { message = "Permissions successfully assigned to the role." });
         }
 
+        [HttpGet("by-role/{roleId}")]
+        public async Task<IActionResult> GetPermissionsByRole(string roleId)
+        {
+            var permissions = await _permissionService.GetPermissionsByRoleAsync(roleId);
+            return Ok(permissions);
+        }
+
+        [HttpPost("remove-from-role")]
+        public async Task<IActionResult> RemovePermissionFromRole([FromBody] RolePermissionDto dto)
+        {
+            var result = await _permissionService.RemovePermissionFromRoleAsync(dto.RoleIds.FirstOrDefault(), dto.PermissionId);
+
+            if (!result) return BadRequest("Failed to remove permission from role.");
+            return Ok(new { message = "Permission removed successfully from role." });
+        }
 
 
-
-
-        //[HttpPost("remove")]
-        //public async Task<IActionResult> RemovePermissionFromRole([FromBody] RolePermissionDto rolePermissionDto)
-        //{
-        //    var result = await _permissionService.RemovePermissionFromRoleAsync(
-        //        rolePermissionDto);
-
-        //    if (!result) return BadRequest("Failed to remove permission from role");
-
-        //    return Ok();
-        //}
-
-        //[HttpGet("role/{roleId}")]
-        //public async Task<IActionResult> GetPermissionsByRole(string roleId)
-        //{
-        //    var permissions = await _permissionService.GetPermissionsByRoleAsync(roleId);
-        //    return Ok(permissions);
-        //}
-
-        //[HttpGet("user/{userId}")]
-        //public async Task<IActionResult> GetUserPermissions(string userId)
-        //{
-        //    var permissions = await _permissionService.GetUserPermissionsAsync(userId);
-        //    return Ok(new UserPermissionsDto { UserId = userId, Permissions = permissions.ToList() });
-
-        //}
     }
 }

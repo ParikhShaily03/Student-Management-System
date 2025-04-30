@@ -95,6 +95,7 @@ namespace Student_Management_System.Repositories
             return await _context.SaveChangesAsync() > 0;
         }
 
+
         public async Task<IEnumerable<Permission>> GetPermissionsByRoleAsync(string roleId)
         {
             return await _context.RolePermissions
@@ -103,6 +104,7 @@ namespace Student_Management_System.Repositories
                 .Select(rp => rp.Permission)
                 .ToListAsync();
         }
+
 
         public async Task<IEnumerable<string>> GetUserPermissionsAsync(string userId)
         {

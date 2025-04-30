@@ -99,18 +99,25 @@ namespace Student_Management_System.Service
         }
 
 
+        public async Task<IEnumerable<PermissionDto>> GetPermissionsByRoleAsync(string roleId)
+        {
+            var permissions = await _permissionRepository.GetPermissionsByRoleAsync(roleId);
+            return permissions.Select(p => new PermissionDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                Category = p.Category
+            });
+        }
 
-        //public async Task<bool> AssignMultiplePermissionsToRoleAsync(string roleId, List<string> permissionsId)
-        //{
-        //    return await _permissionRepository.AssignMultiplePermissionsToRoleAsync(roleId, permissionsId);
-        //}
+        public async Task<bool> RemovePermissionFromRoleAsync(string roleId, string permissionId)
+        {
+            return await _permissionRepository.RemovePermissionFromRoleAsync(roleId, permissionId);
+        }
 
 
 
     }
 }
-        //public async
-        //Task<bool> RemovePermissionFromRoleAsync(RolePermissionDto dto)
-        //{
-        //    return await
-        //        }
+       

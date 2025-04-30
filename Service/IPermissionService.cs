@@ -16,15 +16,9 @@ namespace Student_Management_System.Service
         Task<bool> AssignPermissionToRolesAsync(List<string> roleIds, string permissionId);
 
         Task<bool> AssignMultiplePermissionsToRoleAsync(string roleId, List<string> permissionsId);
-         
 
-
-
-        // Task<bool> UserHasPermissionAsync(string userId, string permissionName);    
-        //Task<bool> RemovePermissionFromRoleAsync(RolePermissionDto dto);
-        //Task<IEnumerable<PermissionDto>> GetPermissionsByRoleAsync(string roleId);
-        //Task<UserPermissionsDto> GetUserPermissionsAsync(string userId);
-        //Task<IEnumerable<string>> GetUserPermissionsAsync(string userId);
+        Task<IEnumerable<PermissionDto>> GetPermissionsByRoleAsync(string roleId);
+        Task<bool> RemovePermissionFromRoleAsync(string roleId, string permissionId);
 
     }
 }
