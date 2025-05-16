@@ -56,3 +56,9 @@ public class MenuDto
     public List<string> RoleIds { get; set; } = new();
 
 }
+
+public class MenuRoleDto
+{
+    public int MenuId { get; set; }
+    public string RoleId { get; set; }
+}

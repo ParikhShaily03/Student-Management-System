@@ -16,6 +16,9 @@ public interface IMenuService
     Task<Menu?> UpdateMenuAsync(int id, MenuDto menuDto);
     Task<bool> DeleteMenuAsync(int id);
 
+    Task<bool> AssignMenuToRoleAsync(int menuId, string roleId);
+    Task<bool> RemoveMenuFromRoleAsync(int menuId, string roleId);
+
 }
 
 public class MenuService : IMenuService
@@ -88,11 +91,17 @@ public class MenuService : IMenuService
         // Add MenuRoles
         if (menuDto.RoleIds?.Any() == true)
         {
-            foreach (var roleId in menuDto.RoleIds)
+            var existingRoles = await _context.Roles
+                .Where(r => menuDto.RoleIds.Contains(r.Id))
+                .Select(r => r.Id)
+                .ToListAsync();
+
+            foreach (var roleId in existingRoles)
             {
                 menu.MenuRoles.Add(new MenuRole { RoleId = roleId });
             }
         }
+
 
         _context.Menus.Add(menu);
         await _context.SaveChangesAsync();
@@ -168,6 +177,39 @@ public class MenuService : IMenuService
         return true;
     }
 
+    public async Task<bool> AssignMenuToRoleAsync(int menuId, string roleId)
+    {
+        var menu = await _context.Menus
+            .Include(m => m.MenuRoles)
+            .FirstOrDefaultAsync(m => m.Id == menuId);
+
+        if (menu == null) return false;
+
+        // Check if already assigned
+        if (menu.MenuRoles.Any(mr => mr.RoleId == roleId))
+            return true; // Already assigned
+
+        menu.MenuRoles.Add(new MenuRole
+        {
+            MenuId = menuId,
+            RoleId = roleId
+        });
+
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> RemoveMenuFromRoleAsync(int menuId, string roleId)
+    {
+        var menuRole = await _context.menuRoles
+            .FirstOrDefaultAsync(mr => mr.MenuId == menuId && mr.RoleId == roleId);
+
+        if (menuRole == null) return false;
+
+        _context.menuRoles.Remove(menuRole);
+        await _context.SaveChangesAsync();
+        return true;
+    }
 
 
 }

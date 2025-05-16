@@ -43,9 +43,9 @@ namespace Student_Management_System.Controllers
 
         [HttpGet]
         [Route("GetUsers")]
-      //  [HasPermission(PermissionEnum.ViewUsers)]
+        [HasPermission(PermissionEnum.View)]
 
-        //[HttpGet("GetUsers")]
+      
         public async Task<IActionResult> GetUsers([FromQuery] PaginationParameters paginationParameters, [FromQuery] string search = "")
         {
             try
@@ -135,7 +135,7 @@ namespace Student_Management_System.Controllers
 
         [HttpGet]
         [Route("GetUser/{id}")]
-
+        [HasPermission(PermissionEnum.View)]
         public async Task<IActionResult> GetUserById(string id)
         {
             var user = await _User.GetByIdAsync(id);
@@ -152,8 +152,7 @@ namespace Student_Management_System.Controllers
 
         //[Authorize]
         [HttpPost("UpsertUser")]
-
-        //[Route("UpsertUser/{id?}")]
+        [HasPermission(PermissionEnum.Edit)]
         public async Task<IActionResult> UpsertUser([FromBody] Add_EditDTO userDto, [FromQuery] Guid? ID)
         {
             if (userDto == null)
@@ -177,6 +176,7 @@ namespace Student_Management_System.Controllers
 
         [HttpDelete]
         [Route("DeleteUser/{id}")]
+        [HasPermission(PermissionEnum.Delete)]
         public async Task<IActionResult> DeleteUser(string id)
         {
             if (string.IsNullOrEmpty(id))

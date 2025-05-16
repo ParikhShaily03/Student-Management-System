@@ -62,6 +62,22 @@ public class MenuController : ControllerBase
         return NoContent();
     }
 
+    [HttpPost("AssignMenuToRole")]
+    public async Task<IActionResult> AssignMenuToRole([FromBody] MenuRoleDto dto)
+    {
+        var result = await _menuService.AssignMenuToRoleAsync(dto.MenuId, dto.RoleId);
+        if (!result) return BadRequest("Assignment failed.");
+        return Ok("Menu assigned to role.");
+    }
+
+    [HttpPost("RemoveMenuFromRole")]
+    public async Task<IActionResult> RemoveMenuFromRole([FromBody] MenuRoleDto dto)
+    {
+        var result = await _menuService.RemoveMenuFromRoleAsync(dto.MenuId, dto.RoleId);
+        if (!result) return BadRequest("Removal failed.");
+        return Ok("Menu removed from role.");
+    }
+
 
 
 }

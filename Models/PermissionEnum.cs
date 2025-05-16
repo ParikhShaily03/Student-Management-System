@@ -2,11 +2,13 @@
 {
     public enum PermissionEnum
     {
-        ViewUsers = 1,
-        EditUsers,
-        DeleteUsers,
-        CreateUsers,
+
+        View = 1,
+        Edit,
+        Delete,
+        Create,
         AccessPermission,
+
 
     }
 
