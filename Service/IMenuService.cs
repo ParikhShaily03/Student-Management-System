@@ -62,9 +62,9 @@ public class MenuService : IMenuService
 
 
     public async Task<Menu?> GetMenuByIdAsync(int id)
-    {
-        return await _context.Menus.FindAsync(id);
-    }
+        {
+            return await _context.Menus.FindAsync(id);
+        }
 
     public async Task<Menu> AddMenuAsync(MenuDto menuDto)
     {
@@ -142,9 +142,9 @@ public class MenuService : IMenuService
 
 
     public async Task<bool> DeleteMenuAsync(int id)
-    {
-        var menu = await _context.Menus.FindAsync(id);
-        if (menu == null) return false;
+        {
+            var menu = await _context.Menus.FindAsync(id);
+            if (menu == null) return false;
 
         // Get the SortOrder of the menu to delete
         int deletedSortOrder = menu.SortOrder;
