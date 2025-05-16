@@ -10,7 +10,7 @@ using Student_Management_System.Repositories.Irepositories;
 
 namespace Student_Management_System.Repositories
 {
-    public class UserRepo<T> : IUser<T> where T:class
+    public class UserRepo<T> : IUser<T> where T : class
     {
         private readonly UserManager<User> _userManager;
         private readonly ApplicationDbContext _context;
@@ -23,7 +23,7 @@ namespace Student_Management_System.Repositories
             _dbSet = context.Set<T>();
         }
 
-     
+
 
         public async Task<PagedResult<T>> GetPagedAsync(PaginationParameters paginationParameters)
         {
@@ -47,10 +47,10 @@ namespace Student_Management_System.Repositories
             {
                 UserName = userDto.UserName,  // Assuming username is email
                 Email = userDto.Email,
-                Name= userDto.Name,
-                Department= userDto.Department,
-                
-                
+                Name = userDto.Name,
+                Department = userDto.Department,
+
+
             };
 
             var result = await _userManager.CreateAsync(user);
@@ -58,8 +58,8 @@ namespace Student_Management_System.Repositories
             {
                 throw new Exception(ApiMessage.Notcreated);
             }
-                return new Add_EditDTO
-                {
+            return new Add_EditDTO
+            {
                 Name = user.UserName,
                 Email = user.Email
             };
@@ -89,7 +89,7 @@ namespace Student_Management_System.Repositories
 
 
 
-        //    var result = await _userManager.DeleteAsync(user);
+            //    var result = await _userManager.DeleteAsync(user);
             return result.Succeeded;
         }
 
@@ -104,7 +104,7 @@ namespace Student_Management_System.Repositories
                     UserName = user.UserName,
                     Email = user.Email,
                     Name = user.Name,
-                    Department= user.Department,
+                    Department = user.Department,
                 })
                 .ToListAsync(); // Ensures it returns Task<IEnumerable<UserDTO>>
         }
@@ -135,7 +135,7 @@ namespace Student_Management_System.Repositories
                 Id = user.Id,
                 Name = user.Name,
                 Email = user.Email,
-                UserName= user.UserName,
+                UserName = user.UserName,
                 Department = user.Department,
             };
         }
@@ -171,14 +171,14 @@ namespace Student_Management_System.Repositories
                 Email = user.Email
             };
         }
-        public async Task<Add_EditDTO> UpsertUserAsyc(Add_EditDTO userDto , Guid ? ID)
-            {
+        public async Task<Add_EditDTO> UpsertUserAsyc(Add_EditDTO userDto, Guid? ID)
+        {
             if (userDto == null)
                 throw new ArgumentNullException(nameof(userDto));
 
             User user;
 
-            if (!string.IsNullOrEmpty(userDto.Id) || ID.HasValue )
+            if (!string.IsNullOrEmpty(userDto.Id) || ID.HasValue)
 
             {
 
@@ -195,7 +195,7 @@ namespace Student_Management_System.Repositories
                 user.Department = userDto.Department;
 
                 var updateResult = await _userManager.UpdateAsync(user);
-                
+
                 if (!updateResult.Succeeded)
                     throw new Exception(ApiMessage.NotUpdated);
             }
@@ -224,10 +224,10 @@ namespace Student_Management_System.Repositories
                 Email = user.Email,
                 Department = user.Department,
             };
-            
+
         }
 
 
-        
+
     }
 }

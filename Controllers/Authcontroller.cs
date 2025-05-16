@@ -18,7 +18,7 @@ namespace StudentManagement.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    
+
     public class AuthController : ControllerBase
     {
         private readonly UserManager<User> _userManager;
@@ -59,24 +59,37 @@ namespace StudentManagement.Controllers
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
-            {
+        {
             var user = await _userManager.FindByNameAsync(model.UserName)
          ?? await _userManager.FindByEmailAsync(model.UserName);
             if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
-                return Ok(ApiMessage.Unauthorized);
+                return Unauthorized(ApiMessage.LoginFailed);
 
             // var roles = await _userManager.GetRolesAsync(user);
             var roles = await _roleRepository.GetUserRolesAsync(user.Id);
+
+            var permissionIds = await _dbContext.RolePermissions
+             .Where(rp => roles.Contains(rp.Role.Name))
+             .Select(rp => rp.Permission.Name)
+             .Distinct()
+             .ToListAsync();
+
             //var token = GenerateJwtToken(user, roles.FirstOrDefault() ?? "User");
-            var token = GenerateJwtToken(user, roles);
-
-
-
+            var token = GenerateJwtToken(user, roles, permissionIds);
+            // var menus = _dbContext.Menus.OrderBy(m => m.SortOrder).ToList();
             //return Ok(new AuthResponse { Token = token}, ApiMassage.LoginSuccess);
             return Ok(new
             {
                 message = ApiMessage.LoginSuccess,
-                data = new AuthResponse { Token = token }
+                data = new AuthResponse
+                {
+
+                    Token = token,
+                    UserId = user.Id,
+                    Roles = roles.ToList(),
+                    Permissions = permissionIds.ToList(),
+                    //Menus = menus.ToList(),
+                }
             });
         }
 
@@ -96,30 +109,9 @@ namespace StudentManagement.Controllers
         }
 
 
-        //private string GenerateJwtToken(User user, string role)
 
-        //{
 
-        //    var jwtSettings = _configuration.GetSection("JwtSettings");
-        //    var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]);
-        //    var claims = new List<Claim>
-        //    {
-        //        new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-        //       new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
-        //        new Claim(ClaimTypes.Role, role)
-        //    };
-
-        //    var token = new JwtSecurityToken(
-        //        issuer: jwtSettings["Issuer"],
-        //        audience: jwtSettings["Audience"],
-        //       claims: claims,
-        //        expires: DateTime.UtcNow.AddMinutes(Convert.ToInt32(jwtSettings[ApiMassage.ExpiryMinutes])),
-        //        signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256));
-
-        //    return new JwtSecurityTokenHandler().WriteToken(token);
-        //}
-
-        private string GenerateJwtToken(User user, IList<string> roles)
+        private string GenerateJwtToken(User user, IList<string> roles, IList<string> permissions)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]);
@@ -135,6 +127,11 @@ namespace StudentManagement.Controllers
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            foreach (var permission in permissions)
+            {
+                claims.Add(new Claim("permission", permission));
             }
 
             var token = new JwtSecurityToken(

@@ -43,7 +43,7 @@ namespace Student_Management_System.Controllers
 
         [HttpGet]
         [Route("GetUsers")]
-        [HasPermission(PermissionEnum.ViewUsers)]
+      //  [HasPermission(PermissionEnum.ViewUsers)]
 
         //[HttpGet("GetUsers")]
         public async Task<IActionResult> GetUsers([FromQuery] PaginationParameters paginationParameters, [FromQuery] string search = "")

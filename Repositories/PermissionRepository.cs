@@ -21,7 +21,7 @@ namespace Student_Management_System.Repositories
             ApplicationDbContext context,
             RoleManager<ApplicationRole> roleManager,
             UserManager<User> userManager
-            //IPermissionRepository permissionRepository,
+           //IPermissionRepository permissionRepository,
            /* IMapper mapper*/)
         {
             _context = context;

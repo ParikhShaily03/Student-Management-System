@@ -22,6 +22,7 @@ using System.Collections.ObjectModel;
 using System.Data;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using System.IdentityModel.Tokens.Jwt;
 //using StudentManagement.Data;y
 
 
@@ -33,7 +34,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 Log.Logger = new LoggerConfiguration()
     /* .readfrom.configuration(builder.configuration)*/ // read settings from appsettings.json
     .WriteTo.Console() // log to console
-    .WriteTo.EventLog("student_management_system", manageEventSource: true, restrictedToMinimumLevel: LogEventLevel.Warning)
+    .WriteTo.EventLog("student_management_system", restrictedToMinimumLevel: LogEventLevel.Warning)
+
     .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day) // log to file
     .WriteTo.MSSqlServer
     (
@@ -86,11 +88,28 @@ builder.Services.AddAuthentication(options =>
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            //ValidIssuer = jwtSettings["Issuer"],
-            //ValidAudience = jwtSettings["Audience"],
             ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
             ValidAudience = builder.Configuration["JwtSettings:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(key)
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var dbContext = context.HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>();
+                var token = context.SecurityToken as JwtSecurityToken;
+
+                if (token != null)
+                {
+                    var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+                    var isRevoked = await dbContext.RevokedTokens.AnyAsync(rt => rt.Token == tokenString);
+                    if (isRevoked)
+                    {
+                        context.Fail("This token has been revoked.");
+                    }
+                }
+            }
         };
     });
 Console.WriteLine($"Key Length: {key.Length * 8} bits");
@@ -101,9 +120,7 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<PermissionHandler>();
-//builder.Services.AddScoped<IMenuRepository, MenuRepository>();
-//builder.Services.AddScoped<IMenuService, MenuService>();
-builder.Services.AddScoped<IMenuService,MenuService>();
+builder.Services.AddScoped<IMenuService, MenuService>();
 
 
 
@@ -120,11 +137,29 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
 
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowAll", policy =>
+//        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+//});
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
-        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyOrigin()
+          .AllowAnyMethod()
+          .AllowAnyHeader();
+
+    });
 });
+
+
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowAll", policy =>
+//        policy.WithOrigins("http://172.16.1.16:5555").AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+//});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -159,30 +194,20 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
-// Add middleware
-
-//builder.Services.AddScoped<PermissionMiddleware>();
-
-//builder.Services.AddScoped<RoleMiddleware>();
-
-//builder.Services.AddScoped<LoggingMiddleware>();
-
-
 var app = builder.Build();
 
-
-
-
-
 // Use the CORS policy
-app.UseCors("AllowAll");
+//app.UseCors("AllowAll");
+
+app.UseCors(builder => builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().WithExposedHeaders("content-disposition"));
+
+app.UseMiddleware<TokenValidationMiddleware>();
+
 
 // Token Validation Middleware (Authentication)
 app.UseAuthentication();
 
 app.UseRouting();
-
 
 // Role Middleware (Optional, for role-based authorization)
 app.UseMiddleware<RoleMiddleware>();
@@ -197,11 +222,14 @@ app.UseMiddleware<LoggingMiddleware>();
 app.UseAuthorization();
 
 // Enable Swagger UI for API documentation in development
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // Map API controllers
 app.UseEndpoints(endpoints =>
@@ -221,6 +249,16 @@ finally
 {
     Log.CloseAndFlush();
 }
+
+app.Run(async context =>
+{
+    var env = app.Services.GetRequiredService<IWebHostEnvironment>();
+    context.Response.ContentType = "text/html";
+    await context.Response.SendFileAsync(Path.Combine(env.WebRootPath, "index.html"));
+});
+
+
+
 
 ColumnOptions GetSqlColumnOptions()
 {

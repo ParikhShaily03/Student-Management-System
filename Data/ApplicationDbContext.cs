@@ -21,6 +21,7 @@ namespace Student_Management_System.Data
         public DbSet<RolePermission> RolePermissions { get; set; }
 
         public DbSet<Menu> Menus { get; set; }
+        public DbSet<MenuRole> menuRoles { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -36,16 +37,32 @@ namespace Student_Management_System.Data
             //.HasConversion<string>();
 
 
-        
 
 
-        modelBuilder.Entity<ApplicationRole>(entity =>
+
+            modelBuilder.Entity<ApplicationRole>(entity =>
             {
                 entity.Property(r => r.CreatedDate).IsRequired();
                 entity.Property(r => r.CreatedBy).HasMaxLength(100);
                 entity.Property(r => r.DeletedDate);
                 entity.Property(r => r.DeletedBy).HasMaxLength(100);
             });
+
+            modelBuilder.Entity<Menu>()
+             .HasKey(m => m.Id);
+
+            modelBuilder.Entity<MenuRole>()
+    .HasOne(mr => mr.Menu)
+    .WithMany(m => m.MenuRoles)
+    .HasForeignKey(mr => mr.MenuId);
+
+            modelBuilder.Entity<MenuRole>()
+           .HasOne(mr => mr.Role)
+           .WithMany()
+           .HasForeignKey(mr => mr.RoleId);
+
+
+
 
             // Configure relationships
             modelBuilder.Entity<RolePermission>()
