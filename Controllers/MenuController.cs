@@ -1,8 +1,14 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Student_Management_System.Enums;
+using Student_Management_System.Middleware;
 
 [ApiController]
+//[Authorize]
+
 [Route("api/[controller]")]
+
 public class MenuController : ControllerBase
 {
     private readonly IMenuService _menuService;
@@ -12,7 +18,8 @@ public class MenuController : ControllerBase
         _menuService = menuService;
     }
 
-    [HttpGet]
+    [HttpGet("GetAllMenu")]
+    //[HasPermission(PermissionEnum.AccessPermission)]
     public async Task<IActionResult> GetMenus()
     {
         var menus = await _menuService.GetAllMenusAsync();
@@ -20,6 +27,7 @@ public class MenuController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    //[HasPermission(PermissionEnum.AccessPermission)]
     public async Task<IActionResult> GetMenu(int id)
     {
         var menu = await _menuService.GetMenuByIdAsync(id);
@@ -27,26 +35,33 @@ public class MenuController : ControllerBase
         return Ok(menu);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> CreateMenu([FromBody] Menu menu)
+    [HttpPost("CreateMenu")]
+    public async Task<IActionResult> CreateMenu([FromBody] MenuDto menuDto)
     {
-        var createdMenu = await _menuService.AddMenuAsync(menu);
-        return CreatedAtAction(nameof(GetMenu), new { id = createdMenu.Id }, createdMenu);
+        var createdMenu = await _menuService.AddMenuAsync(menuDto);
+        return Ok(createdMenu);
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateMenu(int id, [FromBody] Menu menu)
+    [HttpPut("UpdateMenu")]
+    //  [HasPermission(PermissionEnum.AccessPermission)]
+
+    public async Task<IActionResult> UpdateMenu(int id, [FromBody] MenuDto menuDto)
     {
-        var updated = await _menuService.UpdateMenuAsync(id, menu);
+        var updated = await _menuService.UpdateMenuAsync(id, menuDto);
         if (updated == null) return NotFound();
         return Ok(updated);
     }
 
-    [HttpDelete("{id}")]
+
+    [HttpDelete("DeleteMenu")]
+    //[HasPermission(PermissionEnum.AccessPermission)]
     public async Task<IActionResult> DeleteMenu(int id)
     {
         var deleted = await _menuService.DeleteMenuAsync(id);
         if (!deleted) return NotFound();
         return NoContent();
     }
+
+
+
 }
