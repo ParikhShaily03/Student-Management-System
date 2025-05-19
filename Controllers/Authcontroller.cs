@@ -67,17 +67,19 @@ namespace StudentManagement.Controllers
 
             // var roles = await _userManager.GetRolesAsync(user);
             var roles = await _roleRepository.GetUserRolesAsync(user.Id);
+            var roleIds = roles.Select(r => r.Id).ToList();
+
+            var roleNames = roles.Select(r => r.Name).ToList();
 
             var permissionIds = await _dbContext.RolePermissions
-             .Where(rp => roles.Contains(rp.Role.Name))
-             .Select(rp => rp.Permission.Name)
-             .Distinct()
-             .ToListAsync();
+                .Where(rp => roleNames.Contains(rp.Role.Name))
+                .Select(rp => rp.Permission.Name)
+                .Distinct()
+                .ToListAsync();
 
             //var token = GenerateJwtToken(user, roles.FirstOrDefault() ?? "User");
-            var token = GenerateJwtToken(user, roles, permissionIds);
-            // var menus = _dbContext.Menus.OrderBy(m => m.SortOrder).ToList();
-            //return Ok(new AuthResponse { Token = token}, ApiMassage.LoginSuccess);
+            var token = GenerateJwtToken(user, roleNames, roleIds, permissionIds);
+            
             return Ok(new
             {
                 message = ApiMessage.LoginSuccess,
@@ -86,8 +88,10 @@ namespace StudentManagement.Controllers
 
                     Token = token,
                     UserId = user.Id,
-                    Roles = roles.ToList(),
+                    Roles = roleNames.ToList(),
+                    RoleIds = roleIds.ToList(),
                     Permissions = permissionIds.ToList(),
+
                     //Menus = menus.ToList(),
                 }
             });
@@ -111,7 +115,7 @@ namespace StudentManagement.Controllers
 
 
 
-        private string GenerateJwtToken(User user, IList<string> roles, IList<string> permissions)
+        private string  GenerateJwtToken(User user, IList<string> roles, IList<string> roleIds, IList<string> permissions)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]);
@@ -127,6 +131,12 @@ namespace StudentManagement.Controllers
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
+
+            }
+
+            foreach (var roleId in roleIds)
+            {
+                claims.Add(new Claim("role_id", roleId));
             }
 
             foreach (var permission in permissions)

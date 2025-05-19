@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Student_Management_System.Enums;
+using Student_Management_System.Middleware;
 using Student_Management_System.Models.DTOs;
 using Student_Management_System.Service;
 namespace Student_Management_System.Controllers
@@ -6,6 +9,7 @@ namespace Student_Management_System.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class PermissionController : ControllerBase
     {
         private readonly IPermissionService _permissionService;
@@ -16,6 +20,7 @@ namespace Student_Management_System.Controllers
         }
 
         [HttpGet]
+        [HasPermission(PermissionEnum.AccessPermission)]
         public async Task<IActionResult> GetAllPermissions()
         {
             var permissions = await _permissionService.GetAllPermissionsAsync();
@@ -23,6 +28,7 @@ namespace Student_Management_System.Controllers
         }
 
         [HttpGet("{id}")]
+        [HasPermission(PermissionEnum.AccessPermission)]
         public async Task<IActionResult> GetPermissionById(string id)
         {
             var permission = await _permissionService.GetPermissionByIdAsync(id);
@@ -31,6 +37,7 @@ namespace Student_Management_System.Controllers
         }
 
         [HttpPost]
+        [HasPermission(PermissionEnum.AccessPermission)]
         public async Task<IActionResult> CreatePermission([FromBody] PermissionDto permissionDto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -42,6 +49,7 @@ namespace Student_Management_System.Controllers
         }
 
         [HttpPut("{id}")]
+        [HasPermission(PermissionEnum.AccessPermission)]
         public async Task<IActionResult> UpdatePermission(string id, [FromBody] PermissionDto permissionDto)
         {
             if (id != permissionDto.Id) return BadRequest("ID mismatch");
@@ -54,6 +62,7 @@ namespace Student_Management_System.Controllers
         }
 
         [HttpDelete("{id}")]
+        [HasPermission(PermissionEnum.AccessPermission)]
         public async Task<IActionResult> DeletePermission(string id)
         {
             var result = await _permissionService.DeletePermissionAsync(id);
@@ -64,6 +73,7 @@ namespace Student_Management_System.Controllers
         }
 
         [HttpPost("assign-to-roles")]
+        [HasPermission(PermissionEnum.AccessPermission)]
         public async Task<IActionResult> AssignPermissionToRoles([FromBody] RolePermissionDto rolePermissionDto)
         {
             //var permissionAssigned = await _permissionService.IsPermissionAssignedToRoleAsync(rolePermissionDto.RoleId, rolePermissionDto.PermissionId);
@@ -83,6 +93,7 @@ namespace Student_Management_System.Controllers
 
        
         [HttpPost("assign-multiple-permissions-to-role")]
+        [HasPermission(PermissionEnum.AccessPermission)]
         public async Task<IActionResult> AssignMultiplePermissionsToRole([FromBody] RolePermissionsDto dto)
         {
             var result = await _permissionService.AssignMultiplePermissionsToRoleAsync(dto.RoleId, dto.Permissions);
@@ -94,6 +105,7 @@ namespace Student_Management_System.Controllers
         }
 
         [HttpGet("by-role/{roleId}")]
+        [HasPermission(PermissionEnum.AccessPermission)]
         public async Task<IActionResult> GetPermissionsByRole(string roleId)
         {
             var permissions = await _permissionService.GetPermissionsByRoleAsync(roleId);

@@ -131,15 +131,28 @@ namespace Student_Management_System.Repositories
             return result.Succeeded;
         }
 
-        public async Task<IList<string>> GetUserRolesAsync(string Id)
+        public async Task<IList<RoleDTO>> GetUserRolesAsync(string Id)
         {
             Id = Id.Trim().ToLower();
             var user = await _userManager.FindByIdAsync(Id);
             if (user == null)
-                return new List<string>();
+                return new List<RoleDTO>();
 
-            return await _userManager.GetRolesAsync(user);
+            var roleNames = await _userManager.GetRolesAsync(user);
+
+            // Get roles from RoleManager with Ids
+            var roles = await _roleManager.Roles
+                .Where(r => roleNames.Contains(r.Name) && r.DeletedDate == null)
+                .Select(r => new RoleDTO
+                {
+                    Id = r.Id,
+                    Name = r.Name
+                })
+                .ToListAsync();
+
+            return roles;
         }
+
 
 
 

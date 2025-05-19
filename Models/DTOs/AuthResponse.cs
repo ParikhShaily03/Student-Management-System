@@ -6,7 +6,8 @@
         public string UserId { get; set; }
         public List<string> Roles { get; set; }
         public List<string> Permissions { get; set; }
-        //  public  List <Menu> Menus { get; set; }
+        public List<string> RoleIds { get; set; }
+
 
 
         //public string UserId { get; set; }

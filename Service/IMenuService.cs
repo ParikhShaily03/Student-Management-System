@@ -11,13 +11,15 @@ using Student_Management_System.Repositories.Irepositories;
 public interface IMenuService
 {
     Task<IEnumerable<Menu>> GetAllMenusAsync();
+    Task<IEnumerable<Menu>> GetMenusByRoleAsync(string RoleId);
     Task<Menu?> GetMenuByIdAsync(int id);
     Task<Menu> AddMenuAsync(MenuDto menuDto);
     Task<Menu?> UpdateMenuAsync(int id, MenuDto menuDto);
     Task<bool> DeleteMenuAsync(int id);
 
-    Task<bool> AssignMenuToRoleAsync(int menuId, string roleId);
-    Task<bool> RemoveMenuFromRoleAsync(int menuId, string roleId);
+    Task<bool> AssignMenuToRolesAsync(int menuId, List<string> roleIds);
+
+    Task<bool> RemoveMenuFromRolesAsync(int menuId, List<string> roleIds);
 
 }
 
@@ -39,36 +41,31 @@ public class MenuService : IMenuService
 
     public async Task<IEnumerable<Menu>> GetAllMenusAsync()
     {
-        var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
-        if (user == null)
-            return new List<Menu>();
-
-        var userRoles = await _userManager.GetRolesAsync(user);
-
-        var allMenus = await _context.Menus
-      .Where(m => m.IsActive)
-      .Include(m => m.MenuRoles)
-          .ThenInclude(mr => mr.Role)
-      .OrderBy(m => m.SortOrder)
-      .ToListAsync();
-
-        var filteredMenus = allMenus.Where(m =>
-    m.MenuRoles != null && m.MenuRoles.Any(mr =>
-        mr.Role != null && !string.IsNullOrEmpty(mr.Role.Name) &&
-        userRoles.Any(userRole =>
-            string.Equals(userRole.Trim(), mr.Role.Name.Trim(), StringComparison.OrdinalIgnoreCase)
-        )
-    )
-);
-        return filteredMenus;
+        return await _context.Menus
+            .Include(m => m.MenuRoles)
+                .ThenInclude(mr => mr.Role)
+            .OrderBy(m => m.SortOrder)
+            .ToListAsync();
     }
+
+
+    public async Task<IEnumerable<Menu>> GetMenusByRoleAsync(string RoleId)
+    {
+        return await _context.Menus
+            .Where(m => m.IsActive &&
+                m.MenuRoles.Any(mr => mr.Role != null && mr.Role.Id == RoleId))
+            .Include(m => m.MenuRoles)
+                .ThenInclude(mr => mr.Role)
+            .OrderBy(m => m.SortOrder)
+            .ToListAsync();
+    }
+
 
 
     public async Task<Menu?> GetMenuByIdAsync(int id)
         {
             return await _context.Menus.FindAsync(id);
         }
-
     public async Task<Menu> AddMenuAsync(MenuDto menuDto)
     {
         var menu = new Menu
@@ -84,32 +81,16 @@ public class MenuService : IMenuService
             CssClass = menuDto.CssClass
         };
 
-        // Set sort order
         int maxSortOrder = await _context.Menus.MaxAsync(m => (int?)m.SortOrder) ?? 0;
         menu.SortOrder = maxSortOrder + 1;
 
-        // Add MenuRoles
-        if (menuDto.RoleIds?.Any() == true)
-        {
-            var existingRoles = await _context.Roles
-                .Where(r => menuDto.RoleIds.Contains(r.Id))
-                .Select(r => r.Id)
-                .ToListAsync();
-
-            foreach (var roleId in existingRoles)
-            {
-                menu.MenuRoles.Add(new MenuRole { RoleId = roleId });
-            }
-        }
-
+        // Remove role assignment from here
 
         _context.Menus.Add(menu);
         await _context.SaveChangesAsync();
 
         return menu;
     }
-
-
 
     public async Task<Menu?> UpdateMenuAsync(int id, MenuDto menuDto)
     {
@@ -119,7 +100,6 @@ public class MenuService : IMenuService
 
         if (existingMenu == null) return null;
 
-        // Update menu fields
         existingMenu.Title = menuDto.Title;
         existingMenu.Url = menuDto.Url;
         existingMenu.Icon = menuDto.Icon;
@@ -130,20 +110,7 @@ public class MenuService : IMenuService
         existingMenu.Target = menuDto.Target;
         existingMenu.CssClass = menuDto.CssClass;
 
-        // Remove old roles
-        _context.menuRoles.RemoveRange(existingMenu.MenuRoles);
-
-        // Add new roles
-        if (menuDto.RoleIds?.Any() == true)
-        {
-            foreach (var roleId in menuDto.RoleIds)
-            {
-                existingMenu.MenuRoles.Add(new MenuRole
-                {
-                    RoleId = roleId
-                });
-            }
-        }
+        // Remove old role changes here
 
         await _context.SaveChangesAsync();
         return existingMenu;
@@ -177,7 +144,7 @@ public class MenuService : IMenuService
         return true;
     }
 
-    public async Task<bool> AssignMenuToRoleAsync(int menuId, string roleId)
+    public async Task<bool> AssignMenuToRolesAsync(int menuId, List<string> roleIds)
     {
         var menu = await _context.Menus
             .Include(m => m.MenuRoles)
@@ -185,31 +152,35 @@ public class MenuService : IMenuService
 
         if (menu == null) return false;
 
-        // Check if already assigned
-        if (menu.MenuRoles.Any(mr => mr.RoleId == roleId))
-            return true; // Already assigned
-
-        menu.MenuRoles.Add(new MenuRole
+        foreach (var roleId in roleIds)
         {
-            MenuId = menuId,
-            RoleId = roleId
-        });
+            if (!menu.MenuRoles.Any(mr => mr.RoleId == roleId))
+            {
+                menu.MenuRoles.Add(new MenuRole
+                {
+                    MenuId = menuId,
+                    RoleId = roleId
+                });
+            }
+        }
 
         await _context.SaveChangesAsync();
         return true;
     }
 
-    public async Task<bool> RemoveMenuFromRoleAsync(int menuId, string roleId)
+    public async Task<bool> RemoveMenuFromRolesAsync(int menuId, List<string> roleIds)
     {
-        var menuRole = await _context.menuRoles
-            .FirstOrDefaultAsync(mr => mr.MenuId == menuId && mr.RoleId == roleId);
+        var menuRoles = await _context.menuRoles
+            .Where(mr => mr.MenuId == menuId && roleIds.Contains(mr.RoleId))
+            .ToListAsync();
 
-        if (menuRole == null) return false;
+        if (menuRoles.Count == 0) return false;
 
-        _context.menuRoles.Remove(menuRole);
+        _context.menuRoles.RemoveRange(menuRoles);
         await _context.SaveChangesAsync();
         return true;
     }
+
 
 
 }

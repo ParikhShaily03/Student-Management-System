@@ -53,12 +53,12 @@ public class MenuDto
     public string Target { get; set; }
     public string CssClass { get; set; }
 
-    public List<string> RoleIds { get; set; } = new();
+  //  public List<string> RoleIds { get; set; } = new();
 
 }
 
 public class MenuRoleDto
 {
     public int MenuId { get; set; }
-    public string RoleId { get; set; }
+    public List<string> RoleIds { get; set; }
 }

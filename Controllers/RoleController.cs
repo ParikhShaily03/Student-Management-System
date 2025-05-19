@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Student_Management_System.Enums;
+using Student_Management_System.Middleware;
 using Student_Management_System.Models.DTOs;
 using Student_Management_System.Repositories.Irepositories;
 
@@ -20,6 +22,7 @@ namespace Student_Management_System.Controllers
 
         }
         [HttpGet("GetAll")]
+        [HasPermission(PermissionEnum.AccessPermission)]
         public async Task<IActionResult> GetAllRoles([FromQuery] string? search, [FromQuery] string? sortBy = "name", [FromQuery] bool descending = false)
         {
             var roles = await _roleRepository.GetAllRolesAsync(search, sortBy, descending);
@@ -37,6 +40,7 @@ namespace Student_Management_System.Controllers
 
         // ✅ Create Role
         [HttpPost("Create")]
+        [HasPermission(PermissionEnum.AccessPermission)]
         public async Task<IActionResult> CreateRole(string roleName)
         {
             if (string.IsNullOrWhiteSpace(roleName))
@@ -50,6 +54,7 @@ namespace Student_Management_System.Controllers
         }
 
         [HttpPut("Update")]
+        [HasPermission(PermissionEnum.AccessPermission)]
         public async Task<IActionResult> UpdateRole([FromBody] RoleDTO model)
         {
             if (string.IsNullOrWhiteSpace(model.Id) || string.IsNullOrWhiteSpace(model.Name))
@@ -64,6 +69,7 @@ namespace Student_Management_System.Controllers
 
         // ✅ Delete Role
         [HttpDelete("Delete")]
+        [HasPermission(PermissionEnum.AccessPermission)]
         public async Task<IActionResult> DeleteRole([FromQuery] string roleId)
         {
             bool success = await _roleRepository.DeleteRoleAsync(roleId);
@@ -77,6 +83,7 @@ namespace Student_Management_System.Controllers
 
         //[Authorize(Policy = "AssignRole")]
         [HttpPost("AssignRole")]
+        [HasPermission(PermissionEnum.AccessPermission)]
         public async Task<IActionResult> AssignRoleToUser([FromBody] RoleAssignDto model)
         {
             var success = await _roleRepository.AssignRoleToUserAsync(model.UserId, model.RoleName);
@@ -89,6 +96,7 @@ namespace Student_Management_System.Controllers
 
 
         [HttpPost("RemoveRole")]
+        [HasPermission(PermissionEnum.AccessPermission)]
         public async Task<IActionResult> RemoveRoleFromUser([FromBody] RoleAssignDto model)
         {
             var success = await _roleRepository.RemoveRoleFromUserAsync(model.UserId, model.RoleName);
@@ -100,11 +108,14 @@ namespace Student_Management_System.Controllers
         }
 
         [HttpGet("UserRoles/{userId}")]
+        [HasPermission(PermissionEnum.AccessPermission)]
+        
         public async Task<IActionResult> GetUserRoles(string userId)
         {
             var roles = await _roleRepository.GetUserRolesAsync(userId);
             return Ok(roles);
         }
+
 
 
     }

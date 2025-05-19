@@ -19,7 +19,7 @@ namespace Student_Management_System.Repositories.Irepositories
 
         Task<bool> AssignRoleToUserAsync(string userId, string RoleId);
         Task<bool> RemoveRoleFromUserAsync(string UserId, string roleName);
-        Task<IList<string>> GetUserRolesAsync(string UserId);
+        Task<IList<RoleDTO>> GetUserRolesAsync(string UserId);
 
     }
 }
