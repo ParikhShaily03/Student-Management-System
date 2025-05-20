@@ -53,7 +53,14 @@ public class MenuDto
     public string Target { get; set; }
     public string CssClass { get; set; }
 
-  //  public List<string> RoleIds { get; set; } = new();
+    //  public List<string> RoleIds { get; set; } = new();
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+
+    public List<string> AssignedRoleIds { get; set; } = new();
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+
+    public List<string> AssignedRoleNames { get; set; } = new();
 
 }
 

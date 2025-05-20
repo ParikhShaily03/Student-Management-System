@@ -222,14 +222,14 @@ app.UseMiddleware<LoggingMiddleware>();
 app.UseAuthorization();
 
 // Enable Swagger UI for API documentation in development
-//if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-//app.UseSwagger();
-//app.UseSwaggerUI();
+////app.UseSwagger();
+////app.UseSwaggerUI();
 
 // Map API controllers
 app.UseEndpoints(endpoints =>

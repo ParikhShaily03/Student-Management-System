@@ -41,8 +41,25 @@ public class MenuController : ControllerBase
     {
         var menu = await _menuService.GetMenuByIdAsync(id);
         if (menu == null) return NotFound();
-        return Ok(menu);
+
+        var dto = new MenuDto
+        {
+            Title = menu.Title,
+            Url = menu.Url,
+            Icon = menu.Icon,
+            ParentId = menu.ParentId,
+            IsActive = menu.IsActive,
+            IsSubMenu = menu.IsSubMenu,
+            IsExternal = menu.IsExternal,
+            Target = menu.Target,
+            CssClass = menu.CssClass,
+            AssignedRoleIds = menu.MenuRoles.Select(mr => mr.RoleId).ToList(),
+            AssignedRoleNames = menu.MenuRoles.Select(mr => mr.Role.Name).ToList()
+        };
+
+        return Ok(dto);
     }
+
 
     [HttpPost("CreateMenu")]
     [HasPermission(PermissionEnum.AccessPermission)]

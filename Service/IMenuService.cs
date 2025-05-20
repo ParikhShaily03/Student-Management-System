@@ -10,7 +10,7 @@ using Student_Management_System.Repositories.Irepositories;
 
 public interface IMenuService
 {
-    Task<IEnumerable<Menu>> GetAllMenusAsync();
+    Task<IEnumerable<MenuDto>> GetAllMenusAsync();
     Task<IEnumerable<Menu>> GetMenusByRoleAsync(string RoleId);
     Task<Menu?> GetMenuByIdAsync(int id);
     Task<Menu> AddMenuAsync(MenuDto menuDto);
@@ -39,14 +39,30 @@ public class MenuService : IMenuService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<IEnumerable<Menu>> GetAllMenusAsync()
+    public async Task<IEnumerable<MenuDto>> GetAllMenusAsync()
     {
-        return await _context.Menus
+        var menus = await _context.Menus
             .Include(m => m.MenuRoles)
                 .ThenInclude(mr => mr.Role)
             .OrderBy(m => m.SortOrder)
             .ToListAsync();
+
+        return menus.Select(menu => new MenuDto
+        {
+            Title = menu.Title,
+            Url = menu.Url,
+            Icon = menu.Icon,
+            ParentId = menu.ParentId,
+            IsActive = menu.IsActive,
+            IsSubMenu = menu.IsSubMenu,
+            IsExternal = menu.IsExternal,
+            Target = menu.Target,
+            CssClass = menu.CssClass,
+            AssignedRoleIds = menu.MenuRoles.Select(mr => mr.RoleId).ToList(),
+            AssignedRoleNames = menu.MenuRoles.Select(mr => mr.Role.Name).ToList()
+        }).ToList();
     }
+
 
 
     public async Task<IEnumerable<Menu>> GetMenusByRoleAsync(string RoleId)
@@ -64,8 +80,11 @@ public class MenuService : IMenuService
 
     public async Task<Menu?> GetMenuByIdAsync(int id)
         {
-            return await _context.Menus.FindAsync(id);
-        }
+        return await _context.Menus
+    .Include(m => m.MenuRoles)
+        .ThenInclude(mr => mr.Role)
+    .FirstOrDefaultAsync(m => m.Id == id);
+    }
     public async Task<Menu> AddMenuAsync(MenuDto menuDto)
     {
         var menu = new Menu
