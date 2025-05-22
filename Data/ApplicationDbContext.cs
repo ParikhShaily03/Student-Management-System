@@ -22,6 +22,8 @@ namespace Student_Management_System.Data
 
         public DbSet<Menu> Menus { get; set; }
         public DbSet<MenuRole> menuRoles { get; set; }
+
+        public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

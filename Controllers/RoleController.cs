@@ -102,7 +102,7 @@ namespace Student_Management_System.Controllers
             var success = await _roleRepository.RemoveRoleFromUserAsync(model.UserId, model.RoleName);
            // return success ? Ok("Role removed successfully.") : BadRequest("Failed to remove role.");
             if (success)
-                return Ok(new { message = "Role removed successfully." });
+                return Ok(new { message = "Role removed successfully.", Data = model.RoleName });
 
             return NotFound(new { message = "Failed to remove role." });
         }

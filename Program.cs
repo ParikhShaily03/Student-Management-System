@@ -116,11 +116,14 @@ Console.WriteLine($"Key Length: {key.Length * 8} bits");
 
 
 // Register the repository and services
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<PermissionHandler>();
 builder.Services.AddScoped<IMenuService, MenuService>();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 
 

@@ -49,6 +49,7 @@ public class MenuService : IMenuService
 
         return menus.Select(menu => new MenuDto
         {
+            Id = menu.Id,
             Title = menu.Title,
             Url = menu.Url,
             Icon = menu.Icon,
@@ -89,6 +90,7 @@ public class MenuService : IMenuService
     {
         var menu = new Menu
         {
+
             Title = menuDto.Title,
             Url = menuDto.Url,
             Icon = menuDto.Icon,

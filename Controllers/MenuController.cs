@@ -44,6 +44,7 @@ public class MenuController : ControllerBase
 
         var dto = new MenuDto
         {
+            Id=menu.Id,
             Title = menu.Title,
             Url = menu.Url,
             Icon = menu.Icon,
@@ -79,8 +80,7 @@ public class MenuController : ControllerBase
         return Ok(updated);
     }
 
-
-    [HttpDelete("DeleteMenu")]
+    [HttpDelete("DeleteMenu/{id}")]
     [HasPermission(PermissionEnum.AccessPermission)]
     public async Task<IActionResult> DeleteMenu(int id)
     {
@@ -94,8 +94,8 @@ public class MenuController : ControllerBase
     public async Task<IActionResult> AssignMenuToRoles([FromBody] MenuRoleDto dto)
     {
         var result = await _menuService.AssignMenuToRolesAsync(dto.MenuId, dto.RoleIds);
-        if (!result) return BadRequest("Assignment failed.");
-        return Ok("Menu assigned to roles.");
+        if (!result) return BadRequest(new { message = "Assignment failed." });
+        return Ok(new { success = true, message = "Menu assigned to roles." });
     }
 
     [HttpPost("RemoveMenuFromRole")]
@@ -103,8 +103,8 @@ public class MenuController : ControllerBase
     public async Task<IActionResult> RemoveMenuFromRoles([FromBody] MenuRoleDto dto)
     {
         var result = await _menuService.RemoveMenuFromRolesAsync(dto.MenuId, dto.RoleIds);
-        if (!result) return BadRequest("Removal failed.");
-        return Ok("Menu removed from roles.");
+        if (!result) return BadRequest(new { message = "Removal failed." });
+        return Ok(new { success = true, message = "Menu removed from roles." });
     }
 
 
