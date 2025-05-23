@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 
+
 namespace Student_Management_System.Models.DTOs
 {
     public class PagedResult<T>

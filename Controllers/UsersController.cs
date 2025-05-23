@@ -44,82 +44,36 @@ namespace Student_Management_System.Controllers
         [HttpGet]
         [Route("GetUsers")]
         [HasPermission(PermissionEnum.View)]
-
-      
         public async Task<IActionResult> GetUsers([FromQuery] PaginationParameters paginationParameters, [FromQuery] string search = "")
         {
             try
             {
-
                 if (paginationParameters == null)
                 {
                     return BadRequest(new { Message = "Pagination parameters are required." });
                 }
 
-                if (paginationParameters.PageNumber < 1) paginationParameters.PageNumber = 1;
-                if (paginationParameters.PageSize < 1) paginationParameters.PageSize = 10;
-
                 var query = applicationDbContext.Users.Where(u => !u.IsDeleted).AsQueryable();
 
-                // 🔍 Apply search filter BEFORE pagination
-                if (!string.IsNullOrEmpty(search))
+                // Use the new PaginationService
+                var paginationService = new PaginationService<User>(query);
+                var result = await paginationService.ApplyPaginationAsync(paginationParameters, search);
+
+                // Project to DTO if needed
+                var users = result.Items.Select(u => new
                 {
-                    search = search.ToLower();
-                    query = query.Where(u =>
-                        u.Name.ToLower().Contains(search) ||
-                        u.Email.ToLower().Contains(search) ||
-                        u.Department.ToLower().Contains(search) ||
-                        u.UserName.ToLower().Contains(search)
-                    );
-                }
+                    u.Id,
+                    u.Name,
+                    u.Email,
+                    u.Department,
+                    u.UserName
+                }).ToList();
 
-                // ✅ Get total count BEFORE pagination
-                int totalCount = await query.CountAsync();
-                Console.WriteLine($"Total users after filtering: {totalCount}");
-
-
-                if (!string.IsNullOrEmpty(paginationParameters.SortField))
-                {
-                    switch (paginationParameters.SortField.ToLower())
-                    {
-                        case "name":
-                            query = paginationParameters.SortOrder?.ToLower() == "desc"
-                                ? query.OrderByDescending(u => u.Name)
-                                : query.OrderBy(u => u.Name);
-                            break;
-                        case "email":
-                            query = paginationParameters.SortOrder?.ToLower() == "desc"
-                                ? query.OrderByDescending(u => u.Email)
-                                : query.OrderBy(u => u.Email);
-                            break;
-                        default:
-                            // No sorting if field is not recognized
-                            break;
-                    }
-                }
-                // ✅ Apply pagination AFTER filtering
-                var users = await query
-                    //.OrderBy(u => u.UserName) // Sorting
-                    .Skip((paginationParameters.PageNumber - 1) * paginationParameters.PageSize)
-                    .Take(paginationParameters.PageSize)
-                    .Select(u => new
-                    {
-                        u.Id,
-                        u.Name,
-                        u.Email,
-                        u.Department,
-                        u.UserName
-                    })
-                .ToListAsync();
-
-
-
-                // ✅ Return correct pagination + search results
                 return Ok(new
                 {
                     Message = ApiMessage.Success,
                     Data = users,
-                    TotalCount = totalCount, // Should be BEFORE pagination
+                    TotalCount = result.TotalCount,
                     PageNumber = paginationParameters.PageNumber,
                     PageSize = paginationParameters.PageSize,
                     SortBy = paginationParameters.SortField,
@@ -131,7 +85,6 @@ namespace Student_Management_System.Controllers
                 return StatusCode(500, new { Message = "Internal Server Error", Error = ex.Message });
             }
         }
-
 
         [HttpGet]
         [Route("GetUser/{id}")]

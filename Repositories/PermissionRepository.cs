@@ -72,7 +72,7 @@ namespace Student_Management_System.Repositories
             var existing = await _context.RolePermissions
                 .FirstOrDefaultAsync(rp => rp.RoleId == roleId && rp.PermissionId == permissionId);
 
-            if (existing != null) return true; // Already exists
+            if (existing != null) return true; 
 
             var rolePermission = new RolePermission
             {

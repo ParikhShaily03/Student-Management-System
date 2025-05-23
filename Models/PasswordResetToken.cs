@@ -1,12 +1,6 @@
 ﻿namespace Student_Management_System.Models
 {
-    public class PasswordResetToken
-    {
-        public int Id { get; set; }
-        public string Email { get; set; }
-        public string Otp { get; set; }
-        public DateTime ExpiryTime { get; set; }
-    }
+    
 
     public class ForgotPasswordDto
     {

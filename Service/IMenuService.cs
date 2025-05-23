@@ -1,11 +1,14 @@
 ﻿
 
-using System;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Serilog.Parsing;
 using Student_Management_System.Data;
+using Student_Management_System.Enums;
 using Student_Management_System.Model;
+using Student_Management_System.Models.DTOs;
 using Student_Management_System.Repositories.Irepositories;
+using System;
 
 
 public interface IMenuService
@@ -17,9 +20,14 @@ public interface IMenuService
     Task<Menu?> UpdateMenuAsync(int id, MenuDto menuDto);
     Task<bool> DeleteMenuAsync(int id);
 
-    Task<bool> AssignMenuToRolesAsync(int menuId, List<string> roleIds);
 
-    Task<bool> RemoveMenuFromRolesAsync(int menuId, List<string> roleIds);
+    Task<bool> AssignRolePermissionsToMenu(MenuRoleDto dto);
+    Task<bool> RemoveSpecificRolePermissions(RemoveRolePermissionsDto dto);
+    Task<List<RolePermissionAssignment>> GetMenuRolePermissions(int menuId, string? roleId = null);
+
+
+
+
 
 }
 
@@ -165,23 +173,31 @@ public class MenuService : IMenuService
         return true;
     }
 
-    public async Task<bool> AssignMenuToRolesAsync(int menuId, List<string> roleIds)
+
+    public async Task<bool> AssignRolePermissionsToMenu(MenuRoleDto dto)
     {
-        var menu = await _context.Menus
-            .Include(m => m.MenuRoles)
-            .FirstOrDefaultAsync(m => m.Id == menuId);
-
-        if (menu == null) return false;
-
-        foreach (var roleId in roleIds)
+        foreach (var rp in dto.RolePermissions)
         {
-            if (!menu.MenuRoles.Any(mr => mr.RoleId == roleId))
+            // Get all existing permissions for this menu and role
+            var existing = await _context.MenuRolePermissions
+                .Where(mrp => mrp.MenuId == dto.MenuId && mrp.RoleId == rp.RoleId)
+                .ToListAsync();
+
+            // Now iterate directly through the provided list of permissions
+            foreach (var perm in rp.Permissions)
             {
-                menu.MenuRoles.Add(new MenuRole
+                // Check if the permission is already assigned
+                bool alreadyAssigned = existing.Any(x => x.Permission == perm);
+                if (!alreadyAssigned)
                 {
-                    MenuId = menuId,
-                    RoleId = roleId
-                });
+                    var newPermission = new MenuRolePermission
+                    {
+                        MenuId = dto.MenuId,
+                        RoleId = rp.RoleId,
+                        Permission = perm
+                    };
+                    await _context.MenuRolePermissions.AddAsync(newPermission);
+                }
             }
         }
 
@@ -189,19 +205,50 @@ public class MenuService : IMenuService
         return true;
     }
 
-    public async Task<bool> RemoveMenuFromRolesAsync(int menuId, List<string> roleIds)
+
+
+    public async Task<bool> RemoveSpecificRolePermissions(RemoveRolePermissionsDto dto)
     {
-        var menuRoles = await _context.menuRoles
-            .Where(mr => mr.MenuId == menuId && roleIds.Contains(mr.RoleId))
+        var permissions = await _context.MenuRolePermissions
+            .Where(x => x.MenuId == dto.MenuId && x.RoleId == dto.RoleId)
             .ToListAsync();
 
-        if (menuRoles.Count == 0) return false;
+        if (!permissions.Any()) return false;
 
-        _context.menuRoles.RemoveRange(menuRoles);
+        // Filter the permissions that need to be removed
+        var toRemove = permissions
+            .Where(p => dto.PermissionsToRemove.Contains(p.Permission))
+            .ToList();
+
+        if (!toRemove.Any()) return false;
+
+        _context.MenuRolePermissions.RemoveRange(toRemove);
         await _context.SaveChangesAsync();
         return true;
     }
 
+
+    public async Task<List<RolePermissionAssignment>> GetMenuRolePermissions(int menuId, string? roleId = null)
+    {
+        var query = _context.MenuRolePermissions
+            .Where(x => x.MenuId == menuId);
+
+        if (!string.IsNullOrEmpty(roleId))
+        {
+            query = query.Where(x => x.RoleId == roleId);
+        }
+
+        var result = await query
+            .GroupBy(x => x.RoleId)
+            .Select(g => new RolePermissionAssignment
+            {
+                RoleId = g.Key,
+                Permissions = g.Select(x => x.Permission).ToList()
+            })
+            .ToListAsync();
+
+        return result;  // <-- Added this missing return statement
+    }
 
 
 }

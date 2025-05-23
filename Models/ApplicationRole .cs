@@ -12,4 +12,5 @@ public class ApplicationRole : IdentityRole
     public string? DeletedBy { get; set; }
 
     public virtual ICollection<RolePermission> RolePermissions { get; set; }
+
 }

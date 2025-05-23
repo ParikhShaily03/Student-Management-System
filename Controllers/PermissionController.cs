@@ -20,7 +20,7 @@ namespace Student_Management_System.Controllers
         }
 
         [HttpGet]
-        [HasPermission(PermissionEnum.AccessPermission)]
+        [HasPermission(PermissionEnum.View)]
         public async Task<IActionResult> GetAllPermissions()
         {
             var permissions = await _permissionService.GetAllPermissionsAsync();
@@ -28,7 +28,7 @@ namespace Student_Management_System.Controllers
         }
 
         [HttpGet("{id}")]
-        [HasPermission(PermissionEnum.AccessPermission)]
+        [HasPermission(PermissionEnum.View)]
         public async Task<IActionResult> GetPermissionById(string id)
         {
             var permission = await _permissionService.GetPermissionByIdAsync(id);
@@ -37,7 +37,7 @@ namespace Student_Management_System.Controllers
         }
 
         [HttpPost]
-        [HasPermission(PermissionEnum.AccessPermission)]
+        [HasPermission(PermissionEnum.Create)]
         public async Task<IActionResult> CreatePermission([FromBody] PermissionDto permissionDto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -49,7 +49,7 @@ namespace Student_Management_System.Controllers
         }
 
         [HttpPut("{id}")]
-        [HasPermission(PermissionEnum.AccessPermission)]
+        [HasPermission(PermissionEnum.Edit)]
         public async Task<IActionResult> UpdatePermission(string id, [FromBody] PermissionDto permissionDto)
         {
             if (id != permissionDto.Id) return BadRequest("ID mismatch");
@@ -62,7 +62,7 @@ namespace Student_Management_System.Controllers
         }
 
         [HttpDelete("{id}")]
-        [HasPermission(PermissionEnum.AccessPermission)]
+        [HasPermission(PermissionEnum.Delete)]
         public async Task<IActionResult> DeletePermission(string id)
         {
             var result = await _permissionService.DeletePermissionAsync(id);
@@ -113,6 +113,7 @@ namespace Student_Management_System.Controllers
         }
 
         [HttpPost("remove-from-role")]
+        [HasPermission(PermissionEnum.AccessPermission)]
         public async Task<IActionResult> RemovePermissionFromRole([FromBody] RolePermissionDto dto)
         {
             var result = await _permissionService.RemovePermissionFromRoleAsync(dto.RoleIds.FirstOrDefault(), dto.PermissionId);

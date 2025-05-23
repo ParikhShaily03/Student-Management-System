@@ -3,15 +3,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Student_Management_System.Data;
+using Student_Management_System.Enums;
 using Student_Management_System.Model;
 using Student_Management_System.Models;
-using Student_Management_System.Models.DTOs;
 using Student_Management_System.Models.DTOs;
 using Student_Management_System.Repositories.Irepositories;
 using Student_Management_System.Service;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 
 namespace Student_Management_System.Service
@@ -24,6 +25,8 @@ namespace Student_Management_System.Service
 
         Task<bool> SendPasswordResetOtpAsync(string email);
         Task<bool> ResetPasswordWithOtpAsync(string email, string otp, string newPassword);
+
+        Task<AuthResponse?> MimicUserAsync(string targetUserName, string impersonatedBy);
     }
     public class AuthService : IAuthService
     {
@@ -50,6 +53,14 @@ namespace Student_Management_System.Service
         public async Task<string> RegisterAsync(RegisterModel model)
         {
             if (model == null) return ApiMessage.BadRequest;
+
+            var existingEmailUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingEmailUser != null)
+                return "A user with this email already exists.";
+
+            var existingUsernameUser = await _userManager.FindByNameAsync(model.UserName);
+            if (existingUsernameUser != null)
+                return "A user with this username already exists.";
 
             var user = new User
             {
@@ -101,7 +112,17 @@ namespace Student_Management_System.Service
                 .Distinct()
                 .ToListAsync();
 
-            var token = GenerateJwtToken(user, roleNames, roleIds, permissions);
+            var menuPermissions = await GetUserMenuPermissionsAsync(user.Id);
+
+            //            
+            var token = GenerateJwtToken(
+                user: user,
+                roles: roleNames,
+                roleIds: roleIds,
+                permissions: permissions,
+                 menuPermissions: menuPermissions
+           );
+         
 
             return new AuthResponse
             {
@@ -109,8 +130,35 @@ namespace Student_Management_System.Service
                 UserId = user.Id,
                 Roles = roleNames,
                 RoleIds = roleIds,
-                Permissions = permissions
+                Permissions = permissions,
+                MenuPermissions = menuPermissions
+
             };
+        }
+
+        private async Task<Dictionary<int, List<string>>> GetUserMenuPermissionsAsync(string userId)
+        {
+            // Get user's roles
+            var user = await _userManager.FindByIdAsync(userId);
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            // First get all menu permissions for these roles
+            var menuPermissionsList = await _dbContext.MenuRolePermissions
+                .Include(mrp => mrp.Menu)
+                .Include(mrp => mrp.Role)
+                .Where(mrp => userRoles.Contains(mrp.Role.Name))
+                .Select(mrp => new { mrp.MenuId, mrp.Permission })
+                .ToListAsync();
+
+            // Then group in memory
+            var menuPermissions = menuPermissionsList
+                .GroupBy(x => x.MenuId)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(x => x.Permission.ToString()).Distinct().ToList()
+                );
+
+            return menuPermissions;
         }
 
         public async Task<bool> LogoutAsync(string token)
@@ -123,7 +171,9 @@ namespace Student_Management_System.Service
             return true;
         }
 
-        private string GenerateJwtToken(User user, IList<string> roles, IList<string> roleIds, IList<string> permissions)
+        private string GenerateJwtToken(User user, IList<string> roles, IList<string> roleIds, IList<string> permissions,
+    Dictionary<int, List<string>> menuPermissions,
+    string? impersonatedBy = null)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]);
@@ -132,7 +182,8 @@ namespace Student_Management_System.Service
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id),
             new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email)
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(ClaimTypes.Name, user.UserName) // 👈 Add this
         };
 
             foreach (var role in roles)
@@ -143,6 +194,17 @@ namespace Student_Management_System.Service
 
             foreach (var permission in permissions)
                 claims.Add(new Claim("permission", permission));
+
+            if (!string.IsNullOrEmpty(impersonatedBy))
+                claims.Add(new Claim("impersonated_by", impersonatedBy));
+
+            if (menuPermissions != null && menuPermissions.Any())
+            {
+                var menuPermissionsJson = JsonSerializer.Serialize(menuPermissions);
+                claims.Add(new Claim("menu_permissions", menuPermissionsJson));
+            }
+
+
 
             var token = new JwtSecurityToken(
                 issuer: jwtSettings["Issuer"],
@@ -156,50 +218,107 @@ namespace Student_Management_System.Service
 
         public async Task<bool> SendPasswordResetOtpAsync(string email)
         {
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null) return false;
+
+            if (string.IsNullOrWhiteSpace(email))
+                return false;
+
+            var user = await _userManager.Users
+         .Where(u => u.Email == email && !u.IsDeleted)
+         .FirstOrDefaultAsync();
+
+            if (user == null)
+                return false;
 
             var otp = new Random().Next(100000, 999999).ToString();
 
-            var token = new PasswordResetToken
-            {
-                Email = email,
-                Otp = otp,
-                ExpiryTime = DateTime.UtcNow.AddMinutes(2)
-            };
+            user.Otp = otp;
+            user.OtpExpiryTime = DateTime.UtcNow.AddMinutes(2); // set short expiry
+            await _userManager.UpdateAsync(user);
 
-            _dbContext.PasswordResetTokens.Add(token);
-            await _dbContext.SaveChangesAsync();
+            var subject = "🔐 Password Reset OTP";
+            var body = $@"
+        <div style='font-family: Arial, sans-serif; padding: 20px; color: #333;'>
+            <h2 style='color: #FF5722;'>Password Reset Request</h2>
+            <p>Hello {user.Name},</p>
+            <p>Your OTP for resetting your password is:</p>
+            <h3 style='color: #4CAF50;'>{otp}</h3>
+            <p>This OTP will expire in 5 minutes. If you did not request this, please ignore the email.</p>
+            <p>Thanks,<br/>Student Management System Team</p>
+        </div>";
 
-            await _emailService.SendEmailAsync(email, "Reset OTP", $"Your OTP is: {otp}");
+            await _emailService.SendEmailAsync(email, subject, body);
 
             return true;
         }
 
         public async Task<bool> ResetPasswordWithOtpAsync(string email, string otp, string newPassword)
         {
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null) return false;
+            var user = await _userManager.Users
+            .FirstOrDefaultAsync(u => u.Email == email && !u.IsDeleted);
 
-            var token = await _dbContext.PasswordResetTokens
-                .Where(t => t.Email == email && t.Otp == otp && t.ExpiryTime > DateTime.UtcNow)
-                .OrderByDescending(t => t.ExpiryTime)
-                .FirstOrDefaultAsync();
+            if (user == null)
+                return false;
 
-            if (token == null) return false;
+            // Check if OTP is valid
+            if (user.Otp != otp || user.OtpExpiryTime == null || user.OtpExpiryTime < DateTime.UtcNow)
+                return false;
 
             var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
             var result = await _userManager.ResetPasswordAsync(user, resetToken, newPassword);
 
             if (result.Succeeded)
             {
-                _dbContext.PasswordResetTokens.Remove(token); // Cleanup used token
-                await _dbContext.SaveChangesAsync();
+                user.Otp = null;
+                user.OtpExpiryTime = null;
+                await _userManager.UpdateAsync(user);
                 return true;
             }
 
-            return false;
+            return false;   
         }
+
+        public async Task<AuthResponse?> MimicUserAsync(string targetUserName, string impersonatedBy)
+        {
+            var targetUser = await _userManager.FindByNameAsync(targetUserName);
+
+
+            if (targetUser == null || targetUser.IsDeleted)
+                return null;
+
+            var roles = await _roleRepository.GetUserRolesAsync(targetUser.Id);
+            var roleIds = roles.Select(r => r.Id).ToList();
+            var roleNames = roles.Select(r => r.Name).ToList();
+
+            var permissions = await _dbContext.RolePermissions
+                .Where(rp => roleNames.Contains(rp.Role.Name))
+                .Select(rp => rp.Permission.Name)
+                .Distinct()
+                .ToListAsync();
+
+            var menuPermissions = await GetUserMenuPermissionsAsync(targetUser.Id);
+
+            // Add impersonation claim
+            var token = GenerateJwtToken(
+         user: targetUser,
+         roles: roleNames,
+         roleIds: roleIds,
+         permissions: permissions,
+         menuPermissions: menuPermissions,
+         impersonatedBy: impersonatedBy
+     );
+
+            return new AuthResponse
+            {
+                Token = token,
+                UserId = targetUser.Id,
+                Roles = roleNames,
+                RoleIds = roleIds,
+                Permissions = permissions,
+                MenuPermissions = menuPermissions,
+                ImpersonatedBy = impersonatedBy
+            };
+        }
+
 
     }
 }

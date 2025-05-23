@@ -169,7 +169,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 //builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 //builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
-//builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
 
 builder.Services.AddSwaggerGen(c =>
 {

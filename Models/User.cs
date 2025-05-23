@@ -13,10 +13,18 @@ namespace Student_Management_System.Model
 
         public string? Department { get; set; }
 
+        public string? Otp { get; set; }
+        public DateTime? OtpExpiryTime { get; set; }
+
         //[Required]
         //[EmailAddress]
         //public string Email { get; set; }
 
-        }
     }
+
+    public class MimicUserRequest
+    {
+        public string TargetUserName { get; set; } = string.Empty;
+    }
+}
 

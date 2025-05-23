@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Student_Management_System.Data;
-using Student_Management_System.Model;
-using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
-using Student_Management_System.Models;
+using Student_Management_System.Data;
 using Student_Management_System.Enums;
+using Student_Management_System.Model;
+using Student_Management_System.Models;
+using System.Security.Claims;
 
 namespace Student_Management_System.Middleware
 {
@@ -22,15 +23,15 @@ namespace Student_Management_System.Middleware
 
         public async Task Invoke(HttpContext context,
                                  UserManager<User> userManager,
-                               
+
                                  ApplicationDbContext dbContext)
         {
             var user = context.User;
-            
+
 
             if (user.Identity is not null && user.Identity.IsAuthenticated)
             {
-               
+
                 var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
                 Console.WriteLine("User ID: " + userId);
                 if (!string.IsNullOrEmpty(userId))
@@ -49,7 +50,29 @@ namespace Student_Management_System.Middleware
                     Console.WriteLine("Permissions: " + string.Join(", ", rolePermissions));
 
                     context.Items["UserPermissions"] = rolePermissions;
+                    var menuPermissions = await (from role in dbContext.Roles
+                                                 join mr in dbContext.MenuRolePermissions on role.Id equals mr.RoleId
+                                                 where userRoles.Contains(role.Name)
+                                                 select new
+                                                 {
+                                                     mr.MenuId,
+                                                     mr.Permission
+                                                 }).ToListAsync();
 
+                    var permissionDict = new Dictionary<int, PermissionEnum>();
+                    foreach (var mp in menuPermissions)
+                    {
+                        if (permissionDict.TryGetValue(mp.MenuId, out var existing))
+                        {
+                            permissionDict[mp.MenuId] = existing | (PermissionEnum)mp.Permission;
+                        }
+                        else
+                        {
+                            permissionDict[mp.MenuId] = (PermissionEnum)mp.Permission;
+                        }
+                    }
+
+                    context.Items["UserMenuPermissions"] = permissionDict;
                 }
             }
 
@@ -68,7 +91,7 @@ namespace Student_Management_System.Middleware
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            try 
+            try
             {
                 if (context.HttpContext.Items.TryGetValue("UserPermissions", out var permissionsObj)
                     && permissionsObj is List<string> userPermissions)
@@ -88,63 +111,35 @@ namespace Student_Management_System.Middleware
                 Console.WriteLine($"Authorization error: {ex.Message}");
             }
         }
+
     }
 
-    //public class PermissionRequirementFilter : IAuthorizationFilter
-    //{
-    //    private readonly string _permission;
+    public class HasMenuPermissionAttribute : Attribute, IAuthorizationFilter
+    {
+        private readonly string _menuUrl;
+        private readonly PermissionEnum _permission;
 
-    //    public PermissionRequirementFilter(string permission)
+        public HasMenuPermissionAttribute(string menuUrl, PermissionEnum permission)
+        {
+            _menuUrl = menuUrl;
+            _permission = permission;
+        }
 
-    //    {
-    //        _permission = permission;
-    //        Console.WriteLine("Checking for permission: " + _permission);
-    //        if (permission == null)
-    //        {
-    //            Console.WriteLine("UserPermissions is NULL");
-    //        }
-    //        else
-    //        {
-    //            Console.WriteLine("UserPermissions from context: " + string.Join(", ", permission));
-    //        }
-    //    }
+        public void OnAuthorization(AuthorizationFilterContext context)
+        {
+            var db = context.HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>();
+            var menu = db.Menus.FirstOrDefault(m => m.Url == _menuUrl);
 
-    //    public class HasPermissionAttribute : Attribute
-    //    {
-    //        public string PermissionName { get; }
+            if (menu == null ||
+                !context.HttpContext.Items.TryGetValue("UserMenuPermissions", out var value) ||
+                value is not Dictionary<int, PermissionEnum> menuPermissions ||
+                !menuPermissions.TryGetValue(menu.Id, out var perms) ||
+                !perms.HasFlag(_permission))
+            {
+                context.Result = new ForbidResult();
+            }
+        }
+    }
 
-    //        public HasPermissionAttribute(string permissionName)
-    //        {
-    //            PermissionName = permissionName;
-    //        }
-
-
-    //    }
-
-
-    //    public void OnAuthorization(AuthorizationFilterContext context)
-    //    {
-    //        try
-    //        {
-    //            if (context.HttpContext.Items.TryGetValue("UserPermissions", out var permissionsObj)
-    //                && permissionsObj is List<string> userPermissions)
-    //            {
-    //                if (!userPermissions.Contains(_permission))
-    //                {
-    //                    context.Result = new ForbidResult(); // No permission
-    //                }
-    //            }
-    //            else
-    //            {
-    //                context.Result = new UnauthorizedResult(); // Permissions not available
-    //            }
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            Console.WriteLine($"Authorization error: {ex.Message}");
-    //           // context.Result = new UnauthorizedResult(); // Optional fallback
-    //        }
-    //    }
-    //}
 
 }

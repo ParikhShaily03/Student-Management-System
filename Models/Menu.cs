@@ -1,7 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using Student_Management_System.Enums;
+using Student_Management_System.Models.DTOs;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Identity;
 
 public class Menu
 {
@@ -38,6 +40,8 @@ public class MenuRole
     [ForeignKey("Role")]
     public string RoleId { get; set; }
     public ApplicationRole Role { get; set; }
+
+    //public int Permissions { get; set; } = 0;  // store combined PermissionEnum flags
 }
 
 
@@ -63,10 +67,52 @@ public class MenuDto
 
     public List<string> AssignedRoleNames { get; set; } = new();
 
+
 }
 
-public class MenuRoleDto
+public class RolePermissionAssignment
+{
+    public string RoleId { get; set; }
+    public List<PermissionEnum> Permissions { get; set; } = new();
+}
+
+
+
+    public class MenuRoleDto
+    {
+        public int MenuId { get; set; }
+        public List<RolePermissionAssignment> RolePermissions { get; set; } = new();
+    }
+
+
+public class UserMenuPermissionDto
+{
+    public string UserId { get; set; }
+    public string UserName { get; set; }  // or email/display name
+    public int MenuId { get; set; }
+    public string MenuTitle { get; set; }
+    public int Permissions { get; set; }  // combined permissions flags
+}
+
+public class MenuRolePermission
+{
+    [Key]
+    public int Id { get; set; }
+
+    [ForeignKey("Menu")]
+    public int MenuId { get; set; }
+    public Menu Menu { get; set; }
+
+    [ForeignKey("Role")]
+    public string RoleId { get; set; }
+    public ApplicationRole Role { get; set; }
+
+   public PermissionEnum Permission { get; set; }
+}
+
+public class RemoveRolePermissionsDto
 {
     public int MenuId { get; set; }
-    public List<string> RoleIds { get; set; }
+    public string RoleId { get; set; }
+    public List<PermissionEnum> PermissionsToRemove { get; set; } = new();
 }

@@ -22,8 +22,10 @@ namespace Student_Management_System.Data
 
         public DbSet<Menu> Menus { get; set; }
         public DbSet<MenuRole> menuRoles { get; set; }
+        public DbSet<MenuRolePermission> MenuRolePermissions { get; set; }
 
-        public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+
+        //  public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -34,9 +36,9 @@ namespace Student_Management_System.Data
                 new User { Id = Guid.NewGuid().ToString(), Name = "MyUser1", UserName = "User", Email = "user@example.com", Department = "CE" }
             );
 
-            // modelBuilder.Entity<Permission>()
-            //.Property(p => p.Name)
-            //.HasConversion<string>();
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
 
 
 

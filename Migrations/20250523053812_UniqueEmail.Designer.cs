@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Student_Management_System.Data;
 
@@ -11,9 +12,10 @@ using Student_Management_System.Data;
 namespace Student_Management_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250523053812_UniqueEmail")]
+    partial class UniqueEmail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -133,33 +135,6 @@ namespace Student_Management_System.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("menuRoles");
-                });
-
-            modelBuilder.Entity("MenuRolePermission", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("MenuId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Permission")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MenuId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("MenuRolePermissions");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -375,9 +350,9 @@ namespace Student_Management_System.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "002b938b-a848-4d18-ac36-4c5cfdd3132e",
+                            Id = "7192cd21-e95f-4bd8-825d-d6acfd2f39f4",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "92202bdf-dc16-4b1e-89db-78323b0a0998",
+                            ConcurrencyStamp = "f5350671-4861-43b2-a4d9-eb29d0e140c0",
                             Department = "CE",
                             Email = "admin@example.com",
                             EmailConfirmed = false,
@@ -385,15 +360,15 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyAdmin1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "229af894-fc70-4f22-831f-f451b5082eae",
+                            SecurityStamp = "53c5e451-8956-4484-963a-fe5851770e8d",
                             TwoFactorEnabled = false,
                             UserName = "Admin"
                         },
                         new
                         {
-                            Id = "2a5a2e1e-7951-4301-acb0-3bcc804494ba",
+                            Id = "642ae505-0a32-4db1-91b3-842ae1f06d48",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "85792399-bef5-49c3-b71c-4ed7d974a75f",
+                            ConcurrencyStamp = "597beb5e-a42d-449e-8d5f-2136d2ee5ce6",
                             Department = "CE",
                             Email = "user@example.com",
                             EmailConfirmed = false,
@@ -401,7 +376,7 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyUser1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "6f52b57d-ef14-4fed-bc44-9ddeec7bbe51",
+                            SecurityStamp = "d07b6f4f-0fc4-4f8b-b5ce-f0e4cec511cb",
                             TwoFactorEnabled = false,
                             UserName = "User"
                         });
@@ -478,25 +453,6 @@ namespace Student_Management_System.Migrations
                 {
                     b.HasOne("Menu", "Menu")
                         .WithMany("MenuRoles")
-                        .HasForeignKey("MenuId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ApplicationRole", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Menu");
-
-                    b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("MenuRolePermission", b =>
-                {
-                    b.HasOne("Menu", "Menu")
-                        .WithMany()
                         .HasForeignKey("MenuId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

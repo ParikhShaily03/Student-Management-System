@@ -22,7 +22,7 @@ namespace Student_Management_System.Controllers
 
         }
         [HttpGet("GetAll")]
-        [HasPermission(PermissionEnum.AccessPermission)]
+        [HasPermission(PermissionEnum.View)]
         public async Task<IActionResult> GetAllRoles([FromQuery] string? search, [FromQuery] string? sortBy = "name", [FromQuery] bool descending = false)
         {
             var roles = await _roleRepository.GetAllRolesAsync(search, sortBy, descending);
@@ -31,6 +31,7 @@ namespace Student_Management_System.Controllers
 
         // ✅ Get Role by ID
         [HttpGet("GetById/{roleId}")]
+        [HasPermission(PermissionEnum.View)]
         public async Task<IActionResult> GetRoleById(string roleId)
         {
             var role = await _roleRepository.GetRoleByIdAsync(roleId);
@@ -40,7 +41,7 @@ namespace Student_Management_System.Controllers
 
         // ✅ Create Role
         [HttpPost("Create")]
-        [HasPermission(PermissionEnum.AccessPermission)]
+        [HasPermission(PermissionEnum.Create)]
         public async Task<IActionResult> CreateRole(string roleName)
         {
             if (string.IsNullOrWhiteSpace(roleName))
@@ -54,7 +55,7 @@ namespace Student_Management_System.Controllers
         }
 
         [HttpPut("Update")]
-        [HasPermission(PermissionEnum.AccessPermission)]
+        [HasPermission(PermissionEnum.Edit)]
         public async Task<IActionResult> UpdateRole([FromBody] RoleDTO model)
         {
             if (string.IsNullOrWhiteSpace(model.Id) || string.IsNullOrWhiteSpace(model.Name))
@@ -69,7 +70,7 @@ namespace Student_Management_System.Controllers
 
         // ✅ Delete Role
         [HttpDelete("Delete")]
-        [HasPermission(PermissionEnum.AccessPermission)]
+        [HasPermission(PermissionEnum.Delete)]
         public async Task<IActionResult> DeleteRole([FromQuery] string roleId)
         {
             bool success = await _roleRepository.DeleteRoleAsync(roleId);

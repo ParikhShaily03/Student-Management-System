@@ -5,7 +5,7 @@ using Student_Management_System.Enums;
 using Student_Management_System.Middleware;
 
 [ApiController]
-//[Authorize]
+[Authorize]
 
 [Route("api/[controller]")]
 
@@ -19,7 +19,7 @@ public class MenuController : ControllerBase
     }
 
     [HttpGet("GetAllMenu")]
-    [HasPermission(PermissionEnum.AccessPermission)]
+    [HasMenuPermission("/MenuManagement", PermissionEnum.View)]
 
     public async Task<IActionResult> GetMenus()
     {
@@ -27,7 +27,9 @@ public class MenuController : ControllerBase
         return Ok(menus);
     }
 
-    [HttpGet("GetMenusByRole/{RoleId}")]
+   [HttpGet("GetMenusByRole/{RoleId}")]
+   
+  
     public async Task<IActionResult> GetMenusByRole(string RoleId)
     {
         var menus = await _menuService.GetMenusByRoleAsync(RoleId);
@@ -35,8 +37,9 @@ public class MenuController : ControllerBase
     }
 
 
+
     [HttpGet("{id}")]
-    [HasPermission(PermissionEnum.AccessPermission)]
+    [HasMenuPermission("/MenuManagement", PermissionEnum.View)]
     public async Task<IActionResult> GetMenu(int id)
     {
         var menu = await _menuService.GetMenuByIdAsync(id);
@@ -63,7 +66,7 @@ public class MenuController : ControllerBase
 
 
     [HttpPost("CreateMenu")]
-    [HasPermission(PermissionEnum.AccessPermission)]
+    [HasMenuPermission("/MenuManagement", PermissionEnum.Create)]
     public async Task<IActionResult> CreateMenu([FromBody] MenuDto menuDto)
     {
         var createdMenu = await _menuService.AddMenuAsync(menuDto);
@@ -71,7 +74,7 @@ public class MenuController : ControllerBase
     }
 
     [HttpPut("UpdateMenu")]
-     [HasPermission(PermissionEnum.AccessPermission)]
+    [HasMenuPermission("/MenuManagement", PermissionEnum.Edit)]
 
     public async Task<IActionResult> UpdateMenu(int id, [FromBody] MenuDto menuDto)
     {
@@ -81,7 +84,7 @@ public class MenuController : ControllerBase
     }
 
     [HttpDelete("DeleteMenu/{id}")]
-    [HasPermission(PermissionEnum.AccessPermission)]
+    [HasMenuPermission("/MenuManagement", PermissionEnum.Delete)]
     public async Task<IActionResult> DeleteMenu(int id)
     {
         var deleted = await _menuService.DeleteMenuAsync(id);
@@ -89,23 +92,41 @@ public class MenuController : ControllerBase
         return NoContent();
     }
 
-    [HttpPost("AssignMenuToRole")]
-    [HasPermission(PermissionEnum.AccessPermission)]
-    public async Task<IActionResult> AssignMenuToRoles([FromBody] MenuRoleDto dto)
+    [HttpPost("AssignRolePermissionsToMenu")]
+
+    [HasMenuPermission("/MenuManagement", PermissionEnum.AccessPermission)]
+    public async Task<IActionResult> AssignRolePermissions([FromBody] MenuRoleDto dto)
     {
-        var result = await _menuService.AssignMenuToRolesAsync(dto.MenuId, dto.RoleIds);
-        if (!result) return BadRequest(new { message = "Assignment failed." });
-        return Ok(new { success = true, message = "Menu assigned to roles." });
+        var result = await _menuService.AssignRolePermissionsToMenu(dto);
+        if (!result) return BadRequest("Failed to assign permissions");
+      //  return Ok("Permissions assigned successfully");
+        return Ok(new { message = "Permissions assigned successfully" });
+
     }
 
-    [HttpPost("RemoveMenuFromRole")]
-    [HasPermission(PermissionEnum.AccessPermission)]
-    public async Task<IActionResult> RemoveMenuFromRoles([FromBody] MenuRoleDto dto)
+    [HttpPost("RemoveRolePermissionsFromMenu")]
+    [HasMenuPermission("/MenuManagement", PermissionEnum.AccessPermission)]
+    public async Task<IActionResult> RemoveRolePermissionsFromMenu([FromBody] RemoveRolePermissionsDto dto)
     {
-        var result = await _menuService.RemoveMenuFromRolesAsync(dto.MenuId, dto.RoleIds);
-        if (!result) return BadRequest(new { message = "Removal failed." });
-        return Ok(new { success = true, message = "Menu removed from roles." });
+        var result = await _menuService.RemoveSpecificRolePermissions(dto);
+        if (!result) return NotFound("No matching permissions found to remove.");
+        return Ok(new { message= "Permissions removed successfully." });
     }
+
+
+  
+    [HttpGet("GetRolePermissions/{menuId}")]
+    [HasMenuPermission("/MenuManagement", PermissionEnum.View)]
+    public async Task<IActionResult> GetRolePermissions(int menuId, [FromQuery] string? roleId = null)
+    {
+        var permissions = await _menuService.GetMenuRolePermissions(menuId, roleId);
+        return Ok(permissions);
+    }
+
+
+
+
+
 
 
 
