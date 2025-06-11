@@ -11,4 +11,11 @@ namespace Student_Management_System.Models.DTOs
         [Required]
         public string Password { get; set; }
     }
+   
+
+}
+public class RefreshTokenRequest
+{
+    public string Token { get; set; }
+    public string RefreshToken { get; set; }
 }

@@ -1,29 +1,30 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
-using System.Text;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
-using Serilog.Events;
-using Serilog;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.EventLog;
+using Serilog.Sinks.MSSqlServer;
 using Student_Management_System.Data;
-using Student_Management_System.Models;
+using Student_Management_System.Hubs;
+using Student_Management_System.Middleware;
 using Student_Management_System.Model;
+using Student_Management_System.Models;
 using Student_Management_System.Repositories;
 using Student_Management_System.Repositories.Irepositories;
-using Student_Management_System.Middleware;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Serilog.Sinks.MSSqlServer;
-using Serilog.Sinks.EventLog;
 using Student_Management_System.Service;
 using System.Collections.ObjectModel;
 using System.Data;
-using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
-//using StudentManagement.Data;y
+using System.Text;
+
 
 
 
@@ -32,7 +33,6 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 // ✅ Configure Serilog
 Log.Logger = new LoggerConfiguration()
-    /* .readfrom.configuration(builder.configuration)*/ // read settings from appsettings.json
     .WriteTo.Console() // log to console
     .WriteTo.EventLog("student_management_system", restrictedToMinimumLevel: LogEventLevel.Warning)
 
@@ -126,25 +126,11 @@ builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Emai
 builder.Services.AddScoped<IEmailService, EmailService>();
 
 
-
-//builder.Services.AddAuthorization(options =>
-//{
-//    options.AddPolicy("PermissionPolicy", policy =>
-//        policy.Requirements.Add(new AuthorizePermissionAttribute(PermissionType.ViewUsers)));
-//});
-
-// Register the HttpContextAccessor
-
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
 
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowAll", policy =>
-//        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-//});
 
 builder.Services.AddCors(options =>
 {
@@ -154,21 +140,15 @@ builder.Services.AddCors(options =>
           .AllowAnyMethod()
           .AllowAnyHeader();
 
+
     });
 });
 
 
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowAll", policy =>
-//        policy.WithOrigins("http://172.16.1.16:5555").AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-//});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-//builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-//builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
 
 builder.Services.AddSwaggerGen(c =>
@@ -196,49 +176,48 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+builder.Services.AddSignalR();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IChatService, ChatService>();
+
 
 var app = builder.Build();
-
-// Use the CORS policy
-//app.UseCors("AllowAll");
 
 app.UseCors(builder => builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().WithExposedHeaders("content-disposition"));
 
 app.UseMiddleware<TokenValidationMiddleware>();
 
-
-// Token Validation Middleware (Authentication)
 app.UseAuthentication();
 
 app.UseRouting();
 
-// Role Middleware (Optional, for role-based authorization)
 app.UseMiddleware<RoleMiddleware>();
 
-// Permission Middleware (for dynamic permission validation)
 app.UseMiddleware<PermissionMiddleware>();
 
-// Logging Middleware (for logging requests)
 app.UseMiddleware<LoggingMiddleware>();
 
-// Use Authorization to apply the permission policies
 app.UseAuthorization();
 
-// Enable Swagger UI for API documentation in development
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
 
-////app.UseSwagger();
-////app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // Map API controllers
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
 });
+
+app.MapHub<NotificationHub>("/hubs/notifications");
+app.MapHub<ChatHub>("/hubs/chat");
+
+
 try
 {
     Log.Information("Starting the application...");

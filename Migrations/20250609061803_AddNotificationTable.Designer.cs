@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Student_Management_System.Data;
 
@@ -11,9 +12,10 @@ using Student_Management_System.Data;
 namespace Student_Management_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250609061803_AddNotificationTable")]
+    partial class AddNotificationTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -375,9 +377,9 @@ namespace Student_Management_System.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "95b9b9df-580f-4174-9f79-aa9651633529",
+                            Id = "d41a8cb2-b72f-45f8-99ab-451bcef042b0",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "94d5ad9d-3b4e-40af-925d-2021ed8c5167",
+                            ConcurrencyStamp = "00f5914b-5974-4996-a3ca-9391cf44ebe9",
                             Department = "CE",
                             Email = "admin@example.com",
                             EmailConfirmed = false,
@@ -385,15 +387,15 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyAdmin1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "35a39dc5-8a65-47a8-924d-87909f9d05d0",
+                            SecurityStamp = "8f604205-bff4-4754-9955-e67459970373",
                             TwoFactorEnabled = false,
                             UserName = "Admin"
                         },
                         new
                         {
-                            Id = "44c66f9e-5268-427f-b477-2d321f50ba4b",
+                            Id = "0b07d1f1-ef69-49f0-a6c1-0c8f57d955d2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "71597386-b2af-4046-9f41-e10cf2adc257",
+                            ConcurrencyStamp = "2b6b85aa-b7bb-4e2e-8978-36b210e73b26",
                             Department = "CE",
                             Email = "user@example.com",
                             EmailConfirmed = false,
@@ -401,41 +403,10 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyUser1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "738ed73c-9155-4f51-acd1-ea7ea630f787",
+                            SecurityStamp = "fb3f12a0-2496-4a53-ada2-37b6ebfef994",
                             TwoFactorEnabled = false,
                             UserName = "User"
                         });
-                });
-
-            modelBuilder.Entity("Student_Management_System.Models.ChatMessage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ReceiverId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SenderId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("SentAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ChatMessages");
                 });
 
             modelBuilder.Entity("Student_Management_System.Models.Notification", b =>

@@ -41,10 +41,10 @@ namespace Student_Management_System.Controllers
         }
 
 
-        [HttpGet]
+        [HttpPost]
         [Route("GetUsers")]
         [HasPermission(PermissionEnum.View)]
-        public async Task<IActionResult> GetUsers([FromQuery] PaginationParameters paginationParameters, [FromQuery] string search = "")
+        public async Task<IActionResult> GetUsers([FromBody] PaginationParameters paginationParameters)
         {
             try
             {
@@ -53,13 +53,27 @@ namespace Student_Management_System.Controllers
                     return BadRequest(new { Message = "Pagination parameters are required." });
                 }
 
+
+
                 var query = applicationDbContext.Users.Where(u => !u.IsDeleted).AsQueryable();
+                _logger.LogInformation("Initial query: {Query}", query.ToQueryString());
 
-                // Use the new PaginationService
+                if (!string.IsNullOrEmpty(paginationParameters.SearchTerm))
+                {
+                    var searchTerm = paginationParameters.SearchTerm.ToLower();
+                    query = query.Where(u =>
+                        u.Name.ToLower().Contains(searchTerm) ||
+                        u.Email.ToLower().Contains(searchTerm) ||
+                        u.UserName.ToLower().Contains(searchTerm) ||
+                        (u.Department != null && u.Department.ToLower().Contains(searchTerm)));
+                }
+
+
+
+
                 var paginationService = new PaginationService<User>(query);
-                var result = await paginationService.ApplyPaginationAsync(paginationParameters, search);
+                var result = await paginationService.ApplyPaginationAsync(paginationParameters);
 
-                // Project to DTO if needed
                 var users = result.Items.Select(u => new
                 {
                     u.Id,
@@ -77,7 +91,8 @@ namespace Student_Management_System.Controllers
                     PageNumber = paginationParameters.PageNumber,
                     PageSize = paginationParameters.PageSize,
                     SortBy = paginationParameters.SortField,
-                    SortOrder = paginationParameters.SortOrder
+                    SortOrder = paginationParameters.SortOrder,
+                    Filters = paginationParameters.Filters
                 });
             }
             catch (Exception ex)

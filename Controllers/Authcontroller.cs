@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Auth0.AuthenticationApi.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Student_Management_System.Data;
@@ -10,6 +11,7 @@ using Student_Management_System.Service;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+
 
 //using StudentManagement.Models;
 
@@ -65,6 +67,16 @@ namespace StudentManagement.Controllers
             var result = await _authService.LogoutAsync(token);
             if (!result) return BadRequest("Invalid token");
             return Ok(new { message = "Logout successful" });
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+        {
+            var response = await _authService.RefreshTokenAsync(request.Token, request.RefreshToken);
+            if (response == null)
+                return Unauthorized(ApiMessage.InvalidRefreshToken);
+
+            return Ok(new { message = ApiMessage.TokenRefreshed, data = response });
         }
 
 

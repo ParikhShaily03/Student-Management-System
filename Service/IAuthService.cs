@@ -27,6 +27,8 @@ namespace Student_Management_System.Service
         Task<bool> ResetPasswordWithOtpAsync(string email, string otp, string newPassword);
 
         Task<AuthResponse?> MimicUserAsync(string targetUserName, string impersonatedBy);
+        Task<AuthResponse?> RefreshTokenAsync(string token, string refreshToken);
+
     }
     public class AuthService : IAuthService
     {
@@ -91,6 +93,21 @@ namespace Student_Management_System.Service
 
             await _emailService.SendEmailAsync(model.Email, subject, body);
 
+            var ExUser = await _userManager.FindByNameAsync(model.UserName);
+            if (ExUser != null)
+            {
+                await _dbContext.Notifications.AddAsync(new Notification
+                {
+                    UserId = user.Id,
+                    Title = "Welcome!",
+                    Message = "You have successfully registered.",
+                    CreatedAt = DateTime.UtcNow,
+                    IsRead = false
+                });
+                await _dbContext.SaveChangesAsync();
+            }
+
+
             return ApiMessage.RegistrationSuccess;
         }
 
@@ -122,7 +139,21 @@ namespace Student_Management_System.Service
                 permissions: permissions,
                  menuPermissions: menuPermissions
            );
-         
+
+            var ExUser = await _userManager.FindByNameAsync(model.UserName);
+            if (ExUser != null)
+            {
+                await _dbContext.Notifications.AddAsync(new Notification
+                {
+                    UserId = user.Id,
+                    Title = "Hello!",
+                    Message = "You have successfully Logged in.",
+                    CreatedAt = DateTime.UtcNow,
+                    IsRead = false
+                });
+                await _dbContext.SaveChangesAsync();
+            }
+
 
             return new AuthResponse
             {
@@ -130,6 +161,7 @@ namespace Student_Management_System.Service
                 UserId = user.Id,
                 Roles = roleNames,
                 RoleIds = roleIds,
+                RefreshToken = token,
                 Permissions = permissions,
                 MenuPermissions = menuPermissions
 
@@ -181,6 +213,7 @@ namespace Student_Management_System.Service
             var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+            new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
             new Claim(ClaimTypes.Name, user.UserName) // 👈 Add this
@@ -319,6 +352,96 @@ namespace Student_Management_System.Service
             };
         }
 
+        public async Task<AuthResponse?> RefreshTokenAsync(string token, string refreshToken)
+        {
+            // Validate the old token isn't revoked
+            var isRevoked = await _dbContext.RevokedTokens.AnyAsync(rt => rt.Token == token);
+            if (isRevoked)
+            {
+                return null;
+            }
 
-    }
+            // Validate the refresh token (in this simple implementation, we'll just check it matches)
+            // In a real app, you'd want to properly validate the refresh token signature
+            var principal = GetPrincipalFromExpiredToken(token);
+            if (principal == null)
+            {
+                return null;
+            }
+
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+
+
+            var userExists = await _dbContext.Users.AnyAsync(u => u.Id == userId);
+            Console.WriteLine($"User exists in DB: {userExists}");
+
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId && !u.IsDeleted);
+
+            if (user == null || user.IsDeleted)
+            {
+                return null;
+            }
+
+            // Get user roles and permissions
+            var roles = await _roleRepository.GetUserRolesAsync(user.Id);
+            var roleIds = roles.Select(r => r.Id).ToList();
+            var roleNames = roles.Select(r => r.Name).ToList();
+
+            var permissions = await _dbContext.RolePermissions
+                .Where(rp => roleNames.Contains(rp.Role.Name))
+                .Select(rp => rp.Permission.Name)
+                .Distinct()
+                .ToListAsync();
+
+            var menuPermissions = await GetUserMenuPermissionsAsync(user.Id);
+
+            // Generate new token
+            var newToken = GenerateJwtToken(
+                user: user,
+                roles: roleNames,
+                roleIds: roleIds,
+                permissions: permissions,
+                menuPermissions: menuPermissions
+            );
+
+            // Revoke the old token
+            await _dbContext.RevokedTokens.AddAsync(new RevokedToken { Token = token });
+            await _dbContext.SaveChangesAsync();
+
+            return new AuthResponse
+            {
+                Token = newToken,
+                UserId = user.Id,
+                Roles = roleNames,
+                RoleIds = roleIds,
+                Permissions = permissions,
+                MenuPermissions = menuPermissions
+            };
+        }
+
+        private ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
+        {
+            var jwtSettings = _configuration.GetSection("JwtSettings");
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"])),
+                ValidateLifetime = false // we want to get claims from expired token
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+
+            if (securityToken is not JwtSecurityToken jwtSecurityToken ||
+                !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return null;
+            }
+
+            return principal;
+        }
+    
+}
 }

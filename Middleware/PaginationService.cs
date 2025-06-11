@@ -21,6 +21,12 @@ namespace Student_Management_System.Middleware
             // Apply search filter if provided
             var filteredQuery = ApplySearch(_query, search);
 
+            // Apply column filters if provided
+            if (paginationParameters.Filters != null && paginationParameters.Filters.Any())
+            {
+                filteredQuery = ApplyColumnFilters(filteredQuery, paginationParameters.Filters);
+            }
+
             // Get total count before pagination
             int totalCount = await filteredQuery.CountAsync();
 
@@ -37,6 +43,7 @@ namespace Student_Management_System.Middleware
                 TotalCount = totalCount
             };
         }
+
 
         private IQueryable<T> ApplySearch(IQueryable<T> query, string search)
         {
@@ -91,5 +98,56 @@ namespace Student_Management_System.Middleware
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize);
         }
+
+      
+        private IQueryable<T> ApplyColumnFilters(IQueryable<T> query, List<ColumnFilter> filters)
+        {
+            foreach (var filter in filters)
+            {
+                if (string.IsNullOrEmpty(filter.ColumnName) || string.IsNullOrEmpty(filter.FilterValue))
+                    continue;
+
+                try
+                {
+                    // Handle different filter operators
+                    switch (filter.Operator.ToLower())
+                    {
+                        case "equals":
+                            query = query.Where($"{filter.ColumnName} == @0", filter.FilterValue);
+                            break;
+
+                        case "notcontains":
+                            query = query.Where($"!{filter.ColumnName}.Contains(@0)", filter.FilterValue);
+                            break;
+
+
+
+                        case "contains":
+                            query = query.Where($"{filter.ColumnName}.Contains(@0)", filter.FilterValue);
+                            break;
+                        case "startswith":
+                            query = query.Where($"{filter.ColumnName}.StartsWith(@0)", filter.FilterValue);
+                            break;
+                        case "endswith":
+                            query = query.Where($"{filter.ColumnName}.EndsWith(@0)", filter.FilterValue);
+                            break;
+                        default:
+                            // Default to contains if operator is not recognized
+                            query = query.Where($"{filter.ColumnName}.Contains(@0)", filter.FilterValue);
+                            break;
+                    }
+                }
+                catch
+                {
+                    // Skip if the column doesn't exist or other error occurs
+                    continue;
+                }
+            }
+
+            return query;
+        }
+
+
+
     }
 }

@@ -23,6 +23,9 @@ namespace Student_Management_System.Repositories.Irepositories
         Task<bool> CheckPasswordAsync(User user, string password);
 
         Task<Add_EditDTO> UpsertUserAsyc(Add_EditDTO userDto, Guid ? ID);
-       
+
+        Task<IEnumerable<UserDTO>> GetChatContactsAsync(string currentUserId);
+
+
     }
 }

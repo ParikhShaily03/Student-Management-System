@@ -11,6 +11,7 @@ namespace Student_Management_System.Models.DTOs
         public List<string> RoleIds { get; set; }
         public string? ImpersonatedBy { get; set; }
         public Dictionary<int, List<string>> MenuPermissions { get; set; }
+        public string RefreshToken { get; set; } // Add this
 
         //public string UserId { get; set; }
         //public string Role { get; set; }

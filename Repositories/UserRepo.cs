@@ -227,6 +227,20 @@ namespace Student_Management_System.Repositories
 
         }
 
+        public async Task<IEnumerable<UserDTO>> GetChatContactsAsync(string currentUserId)
+        {
+            return await _context.Users
+                .Where(u => u.Id != currentUserId)
+                .Select(u => new UserDTO
+                {
+                    Id = u.Id,
+                    UserName = u.UserName
+                    // Add any other safe fields you need
+                })
+                .ToListAsync();
+        }
+
+
 
 
     }

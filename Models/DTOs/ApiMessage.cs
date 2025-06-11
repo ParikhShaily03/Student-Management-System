@@ -23,6 +23,10 @@
         public static readonly string ExpiryMinutes = "Timeout";
         public static readonly string LogoutSuccess = "User Log Out successfully";
 
-
+        public const string TokenRefreshed = "Token refreshed successfully";
+        public const string InvalidRefreshToken = "Invalid or expired refresh token";
+        public const string TokenStillValid = "Current token is still valid";
+        public const string RefreshTokenRequired = "Refresh token is required";
+        public const string AccessTokenRequired = "Access token is required";
     }
 }

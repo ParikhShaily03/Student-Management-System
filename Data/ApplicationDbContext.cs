@@ -24,6 +24,11 @@ namespace Student_Management_System.Data
         public DbSet<MenuRole> menuRoles { get; set; }
         public DbSet<MenuRolePermission> MenuRolePermissions { get; set; }
 
+        public DbSet<Notification> Notifications { get; set; }
+        // Data/ApplicationDbContext.cs
+        public DbSet<ChatMessage> ChatMessages { get; set; }
+
+
 
         //  public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
