@@ -76,13 +76,21 @@ public class MenuService : IMenuService
 
     public async Task<IEnumerable<Menu>> GetMenusByRoleAsync(string RoleId)
     {
-        return await _context.Menus
-            .Where(m => m.IsActive &&
-                m.MenuRoles.Any(mr => mr.Role != null && mr.Role.Id == RoleId))
-            .Include(m => m.MenuRoles)
-                .ThenInclude(mr => mr.Role)
-            .OrderBy(m => m.SortOrder)
-            .ToListAsync();
+        //return await _context.Menus
+        //    .Where(m => m.IsActive &&
+        //        m.MenuRoles.Any(mr => mr.Role != null && mr.Role.Id == RoleId))
+        //    .Include(m => m.MenuRoles)
+        //        .ThenInclude(mr => mr.Role)
+        //    .OrderBy(m => m.SortOrder)
+        //    .ToListAsync();
+        return await _context.MenuRolePermissions
+        .Where(mrp => mrp.RoleId == RoleId && mrp.Menu.IsActive)
+        .Select(mrp => mrp.Menu)
+        .Distinct()
+        .Include(m => m.MenuRoles)  // Optional: if you still want to include MenuRoles
+        .ThenInclude(mr => mr.Role)
+        .OrderBy(m => m.SortOrder)
+        .ToListAsync();
     }
 
 
