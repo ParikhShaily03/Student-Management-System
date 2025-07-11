@@ -12,8 +12,8 @@ using Student_Management_System.Data;
 namespace Student_Management_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250528180944_AddMenuRolePermissionremove")]
-    partial class AddMenuRolePermissionremove
+    [Migration("20250701063033_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -377,9 +377,9 @@ namespace Student_Management_System.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "002b938b-a848-4d18-ac36-4c5cfdd3132e",
+                            Id = "6c3d6acd-d4f0-4a31-ac24-6dd36bf175d7",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "92202bdf-dc16-4b1e-89db-78323b0a0998",
+                            ConcurrencyStamp = "2efd4750-2c01-4372-9456-67f043379f5f",
                             Department = "CE",
                             Email = "admin@example.com",
                             EmailConfirmed = false,
@@ -387,15 +387,15 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyAdmin1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "229af894-fc70-4f22-831f-f451b5082eae",
+                            SecurityStamp = "a24beda6-05e7-4b14-bd0b-5dfed4a6914c",
                             TwoFactorEnabled = false,
                             UserName = "Admin"
                         },
                         new
                         {
-                            Id = "2a5a2e1e-7951-4301-acb0-3bcc804494ba",
+                            Id = "b32aded8-d274-4ff1-a246-9ca729d87441",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "85792399-bef5-49c3-b71c-4ed7d974a75f",
+                            ConcurrencyStamp = "0bf0c32c-c59c-415c-999c-f88bd1a13d44",
                             Department = "CE",
                             Email = "user@example.com",
                             EmailConfirmed = false,
@@ -403,10 +403,72 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyUser1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "6f52b57d-ef14-4fed-bc44-9ddeec7bbe51",
+                            SecurityStamp = "d03946c7-93c6-4901-85a3-130e358521f5",
                             TwoFactorEnabled = false,
                             UserName = "User"
                         });
+                });
+
+            modelBuilder.Entity("Student_Management_System.Models.ChatMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReceiverId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ChatMessages");
+                });
+
+            modelBuilder.Entity("Student_Management_System.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Student_Management_System.Models.Permission", b =>

@@ -12,8 +12,8 @@ using Student_Management_System.Data;
 namespace Student_Management_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250424074148_init1")]
-    partial class init1
+    [Migration("20250701063156_init2")]
+    partial class init2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -63,6 +63,105 @@ namespace Student_Management_System.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Menu", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("CssClass")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsExternal")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSubMenu")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Target")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Menus");
+                });
+
+            modelBuilder.Entity("MenuRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("MenuId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MenuId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("menuRoles");
+                });
+
+            modelBuilder.Entity("MenuRolePermission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("MenuId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Permission")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MenuId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("MenuRolePermissions");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -234,6 +333,12 @@ namespace Student_Management_System.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<string>("Otp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("OtpExpiryTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
@@ -255,6 +360,10 @@ namespace Student_Management_System.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasFilter("[Email] IS NOT NULL");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -268,9 +377,9 @@ namespace Student_Management_System.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "cd25f759-2d64-41cd-a551-f376da768792",
+                            Id = "0de3979a-7057-4feb-a9db-b51ddd6417d9",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "274f703d-251b-47c6-a6e1-42bc0d6c7894",
+                            ConcurrencyStamp = "2f72d0be-ea51-4b2b-8537-6ec25de5f0dc",
                             Department = "CE",
                             Email = "admin@example.com",
                             EmailConfirmed = false,
@@ -278,15 +387,15 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyAdmin1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "9c9df73e-8b4b-4614-a2af-5a77b05f0716",
+                            SecurityStamp = "ceccbaba-5f9d-4b4e-9168-1dfcd766c420",
                             TwoFactorEnabled = false,
                             UserName = "Admin"
                         },
                         new
                         {
-                            Id = "6b844442-c7f2-4f34-b8c0-00ee22e5a087",
+                            Id = "1681d26a-e504-444e-b741-2c15312c5e8f",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "991958e6-88ad-491b-9e22-9213e48e3aec",
+                            ConcurrencyStamp = "48e040d8-8b21-4cf6-ae27-987fad18d7b5",
                             Department = "CE",
                             Email = "user@example.com",
                             EmailConfirmed = false,
@@ -294,13 +403,13 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyUser1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "745ef391-ab6c-4049-a542-c2e7aeb20175",
+                            SecurityStamp = "0b3b5a98-70fa-4bd9-962e-fda9767e13cb",
                             TwoFactorEnabled = false,
                             UserName = "User"
                         });
                 });
 
-            modelBuilder.Entity("Student_Management_System.Models.Menu", b =>
+            modelBuilder.Entity("Student_Management_System.Models.ChatMessage", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -308,17 +417,44 @@ namespace Student_Management_System.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("Icon")
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                    b.Property<string>("ReceiverId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ParentId")
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ChatMessages");
+                });
+
+            modelBuilder.Entity("Student_Management_System.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("Role")
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -326,13 +462,13 @@ namespace Student_Management_System.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Url")
+                    b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Menus");
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Student_Management_System.Models.Permission", b =>
@@ -400,6 +536,44 @@ namespace Student_Management_System.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("RolePermissions");
+                });
+
+            modelBuilder.Entity("MenuRole", b =>
+                {
+                    b.HasOne("Menu", "Menu")
+                        .WithMany("MenuRoles")
+                        .HasForeignKey("MenuId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ApplicationRole", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Menu");
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("MenuRolePermission", b =>
+                {
+                    b.HasOne("Menu", "Menu")
+                        .WithMany()
+                        .HasForeignKey("MenuId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ApplicationRole", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Menu");
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -475,6 +649,11 @@ namespace Student_Management_System.Migrations
             modelBuilder.Entity("ApplicationRole", b =>
                 {
                     b.Navigation("RolePermissions");
+                });
+
+            modelBuilder.Entity("Menu", b =>
+                {
+                    b.Navigation("MenuRoles");
                 });
 #pragma warning restore 612, 618
         }

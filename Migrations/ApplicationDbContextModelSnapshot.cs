@@ -375,9 +375,9 @@ namespace Student_Management_System.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "95b9b9df-580f-4174-9f79-aa9651633529",
+                            Id = "0de3979a-7057-4feb-a9db-b51ddd6417d9",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "94d5ad9d-3b4e-40af-925d-2021ed8c5167",
+                            ConcurrencyStamp = "2f72d0be-ea51-4b2b-8537-6ec25de5f0dc",
                             Department = "CE",
                             Email = "admin@example.com",
                             EmailConfirmed = false,
@@ -385,15 +385,15 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyAdmin1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "35a39dc5-8a65-47a8-924d-87909f9d05d0",
+                            SecurityStamp = "ceccbaba-5f9d-4b4e-9168-1dfcd766c420",
                             TwoFactorEnabled = false,
                             UserName = "Admin"
                         },
                         new
                         {
-                            Id = "44c66f9e-5268-427f-b477-2d321f50ba4b",
+                            Id = "1681d26a-e504-444e-b741-2c15312c5e8f",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "71597386-b2af-4046-9f41-e10cf2adc257",
+                            ConcurrencyStamp = "48e040d8-8b21-4cf6-ae27-987fad18d7b5",
                             Department = "CE",
                             Email = "user@example.com",
                             EmailConfirmed = false,
@@ -401,7 +401,7 @@ namespace Student_Management_System.Migrations
                             LockoutEnabled = false,
                             Name = "MyUser1",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "738ed73c-9155-4f51-acd1-ea7ea630f787",
+                            SecurityStamp = "0b3b5a98-70fa-4bd9-962e-fda9767e13cb",
                             TwoFactorEnabled = false,
                             UserName = "User"
                         });
