@@ -1,0 +1,94 @@
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Student_Management_System.Middleware;
+using Student_Management_System.Model;
+using Student_Management_System.Models;
+using Student_Management_System.Models.DTOs;
+
+
+namespace Student_Management_System.Data
+{
+    public class ApplicationDbContext : IdentityDbContext<User, ApplicationRole, string>
+    {
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+
+
+        //public DbSet<User> Users { get; set; }
+        public DbSet<ApiLogger> ApiLoggers { get; set; }
+        public DbSet<RevokedToken> RevokedTokens { get; set; }
+
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
+
+        public DbSet<Menu> Menus { get; set; }
+        public DbSet<MenuRole> menuRoles { get; set; }
+        public DbSet<MenuRolePermission> MenuRolePermissions { get; set; }
+
+        public DbSet<Notification> Notifications { get; set; }
+        // Data/ApplicationDbContext.cs
+        public DbSet<ChatMessage> ChatMessages { get; set; }
+
+
+
+        //  public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Seeding data
+            modelBuilder.Entity<User>().HasData(
+                new User { Id = Guid.NewGuid().ToString(), Name = "MyAdmin1", UserName = "Admin", Email = "admin@example.com", Department = "CE" },
+                new User { Id = Guid.NewGuid().ToString(), Name = "MyUser1", UserName = "User", Email = "user@example.com", Department = "CE" }
+            );
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
+
+
+
+
+            modelBuilder.Entity<ApplicationRole>(entity =>
+            {
+                entity.Property(r => r.CreatedDate).IsRequired();
+                entity.Property(r => r.CreatedBy).HasMaxLength(100);
+                entity.Property(r => r.DeletedDate);
+                entity.Property(r => r.DeletedBy).HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<Menu>()
+             .HasKey(m => m.Id);
+
+            modelBuilder.Entity<MenuRole>()
+    .HasOne(mr => mr.Menu)
+    .WithMany(m => m.MenuRoles)
+    .HasForeignKey(mr => mr.MenuId);
+
+            modelBuilder.Entity<MenuRole>()
+           .HasOne(mr => mr.Role)
+           .WithMany()
+           .HasForeignKey(mr => mr.RoleId);
+
+
+
+
+            // Configure relationships
+            modelBuilder.Entity<RolePermission>()
+                .HasKey(rp => rp.Id);
+
+            modelBuilder.Entity<RolePermission>()
+                .HasOne(rp => rp.Role)
+                .WithMany(r => r.RolePermissions)
+                .HasForeignKey(rp => rp.RoleId);
+
+            modelBuilder.Entity<RolePermission>()
+                .HasOne(rp => rp.Permission)
+                .WithMany()
+                .HasForeignKey(rp => rp.PermissionId);
+        }
+
+    }
+
+}
+

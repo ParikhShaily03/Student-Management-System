@@ -1,80 +1,133 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+﻿using Auth0.AuthenticationApi.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
+using Student_Management_System.Data;
+using Student_Management_System.Model;
 using Student_Management_System.Models;
-using StudentManagement.Models;
+using Student_Management_System.Models.DTOs;
+using Student_Management_System.Repositories.Irepositories;
+using Student_Management_System.Service;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+
+
+//using StudentManagement.Models;
 
 namespace StudentManagement.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [ApiController]
+
     public class AuthController : ControllerBase
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
-        private readonly IConfiguration _configuration;
 
-        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IConfiguration configuration)
+
+        private readonly IAuthService _authService;
+
+        public AuthController(IAuthService authService)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _configuration = configuration;
+            _authService = authService;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var result = await _authService.RegisterAsync(model);
 
-            var usernew = new User { UserName = model.Username, Email = model.Email };
-            var result = await _userManager.CreateAsync(usernew, model.Password);
+            if (result == "A user with this email already exists.")
+                return BadRequest(new { message = result });
 
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
+            if (result.Contains("A user with this username already exists."))
+                return BadRequest(new { message = result });
 
-            //await _userManager.AddToRoleAsync(usernew, model.Role);
-            return Ok("User registered successfully.");
-            }
+            if (result == ApiMessage.RegistrationFailed)
+                return StatusCode(500, new { message = result });
+
+            return Ok(new { message = result });
+
+            
+        }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
-            {
-            var user = await _userManager.FindByNameAsync(model.Username);
-            if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
-                return Unauthorized("Invalid credentials.");
-
-            var roles = await _userManager.GetRolesAsync(user);
-            var token = GenerateJwtToken(user, roles.FirstOrDefault() ?? "User");
-
-
-           return Ok(new AuthResponse { Token = token});
-        }
-
-        private string GenerateJwtToken(User user, string role)
         {
-            var jwtSettings = _configuration.GetSection("JwtSettings");
-            var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]);
-            var claims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-               new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
-                new Claim(ClaimTypes.Role, role)
-            };
+            var response = await _authService.LoginAsync(model);
+            if (response == null)
+                return Unauthorized(ApiMessage.LoginFailed);
 
-            var token = new JwtSecurityToken(
-                issuer: jwtSettings["Issuer"],
-                audience: jwtSettings["Audience"],
-               claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(Convert.ToInt32(jwtSettings["ExpiryMinutes"])),
-                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256));
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return Ok(new { message = ApiMessage.LoginSuccess, data = response });
         }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var result = await _authService.LogoutAsync(token);
+            if (!result) return BadRequest("Invalid token");
+            return Ok(new { message = "Logout successful" });
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+        {
+            var response = await _authService.RefreshTokenAsync(request.Token, request.RefreshToken);
+            if (response == null)
+                return Unauthorized(ApiMessage.InvalidRefreshToken);
+
+            return Ok(new { message = ApiMessage.TokenRefreshed, data = response });
+        }
+
+
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+        {
+            var success = await _authService.SendPasswordResetOtpAsync(dto.Email);
+            if (!success)
+                return BadRequest("Email not found.");
+
+            return Ok(new { message = "OTP sent successfully." });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+        {
+            var success = await _authService.ResetPasswordWithOtpAsync(dto.Email, dto.Otp, dto.NewPassword);
+            if (!success)
+                return BadRequest("Invalid or expired OTP.");
+
+
+            return Ok(new { message = "Password reset successful." });
+
+           
+        }
+
+        [HttpPost("mimic")]
+        public async Task<IActionResult> MimicUser([FromBody] MimicUserRequest request)
+        {
+            var currentUser = User.Identity?.Name;
+
+            if (string.IsNullOrEmpty(currentUser))
+            return Ok(new { message = "Current user not found." });
+
+            // OPTIONAL: Check if current user is admin
+            var isAdmin = User.IsInRole("Admin"); // Or use claims
+            if (!isAdmin)
+            return Ok(new { message = "Only admins can mimic users." });
+
+            var response = await _authService.MimicUserAsync(request.TargetUserName, currentUser);
+            if (response == null)
+            return Ok(new { message = "Target user not found." });
+
+            return Ok(new { message = "Mimic successful", data = response });
+        }
+
+
     }
 }
+
+
+
 
